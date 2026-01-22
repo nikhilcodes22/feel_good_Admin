@@ -61,41 +61,55 @@ const Auth = () => {
     }
 
     try {
-      // Create a session using Supabase with a test user
-      // For now, we sign in anonymously or with a mock email
+      // Create deterministic credentials based on phone/email
+      // This allows the same user to login again with the same OTP
       const email = method === 'email' ? identifier : `${identifier.replace(/\D/g, '')}@phone.local`;
-      const password = `otp_${DEFAULT_OTP}_${Date.now()}`;
+      const password = `feelgood_${email}_${DEFAULT_OTP}`;
 
-      // Try to sign up first, if user exists, sign in
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      // Try to sign in first
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          emailRedirectTo: window.location.origin,
-          data: {
-            phone: method === 'phone' ? identifier : null,
-            email: method === 'email' ? identifier : null,
-          }
-        }
       });
 
-      if (signUpError && signUpError.message.includes('already registered')) {
-        // User exists, but since we're using random passwords, we'll just create a new session
-        // In production, you'd use proper OTP verification
-        toast.error('User already exists. Please contact support.');
-        setIsLoading(false);
+      if (signInData?.user) {
+        // Existing user signed in successfully
+        toast.success('Welcome back!', {
+          description: 'You have been signed in successfully'
+        });
+        navigate('/dashboard');
         return;
       }
 
-      if (signUpError) {
-        throw signUpError;
+      // If sign in failed because user doesn't exist, try to sign up
+      if (signInError?.message?.includes('Invalid login credentials')) {
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: {
+              phone: method === 'phone' ? identifier : null,
+              email: method === 'email' ? identifier : null,
+            }
+          }
+        });
+
+        if (signUpError) {
+          throw signUpError;
+        }
+
+        toast.success('Welcome!', {
+          description: 'Your account has been created successfully'
+        });
+        navigate('/dashboard');
+        return;
       }
 
-      toast.success('Welcome!', {
-        description: 'You have been signed in successfully'
-      });
-      
-      navigate('/dashboard');
+      // Other sign in errors
+      if (signInError) {
+        throw signInError;
+      }
     } catch (error: any) {
       toast.error('Authentication failed', {
         description: error.message
