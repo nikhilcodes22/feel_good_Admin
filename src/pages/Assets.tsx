@@ -1,13 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, ArrowLeft, Plus, Package, DollarSign, AlertCircle, Search } from 'lucide-react';
+import { 
+  Heart, ArrowLeft, Plus, Package, DollarSign, AlertCircle, Search,
+  LayoutGrid, List, MoreVertical, Pencil, Trash2, HandCoins
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { CreateAssetDialog } from '@/components/assets/CreateAssetDialog';
+import { EditAssetDialog } from '@/components/assets/EditAssetDialog';
+import { DeleteAssetDialog } from '@/components/assets/DeleteAssetDialog';
+import { LendAssetDialog } from '@/components/assets/LendAssetDialog';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Asset = Tables<'assets'>;
@@ -21,7 +33,14 @@ const Assets = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  
+  // Dialog states
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [lendDialogOpen, setLendDialogOpen] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [organizationId, setOrganizationId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,7 +54,6 @@ const Assets = () => {
 
     setLoading(true);
     try {
-      // Get user's organization
       const { data: memberData, error: memberError } = await supabase
         .from('organization_members')
         .select('organization_id')
@@ -94,6 +112,33 @@ const Assets = () => {
     return categories.find(c => c.id === categoryId)?.name || 'Unknown';
   };
 
+  const handleEdit = (asset: Asset) => {
+    setSelectedAsset(asset);
+    setEditDialogOpen(true);
+  };
+
+  const handleDelete = (asset: Asset) => {
+    setSelectedAsset(asset);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleLend = (asset: Asset) => {
+    setSelectedAsset(asset);
+    setLendDialogOpen(true);
+  };
+
+  const handleAddAsset = () => {
+    if (loading) return;
+    if (!organizationId) {
+      toast.error('Create an organization first', {
+        description: 'You need an organization to add assets.'
+      });
+      navigate('/dashboard');
+      return;
+    }
+    setCreateDialogOpen(true);
+  };
+
   return (
     <div className="min-h-screen gradient-warm">
       {/* Header */}
@@ -112,24 +157,36 @@ const Assets = () => {
               </span>
             </div>
 
-            <Button 
-              onClick={() => {
-                if (loading) return;
-                if (!organizationId) {
-                  toast.error('Create an organization first', {
-                    description: 'You need an organization to add assets.'
-                  });
-                  navigate('/dashboard');
-                  return;
-                }
-                setCreateDialogOpen(true);
-              }}
-              disabled={loading}
-              className="gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Asset
-            </Button>
+            <div className="flex items-center gap-2">
+              {/* View Toggle */}
+              <div className="flex items-center bg-muted rounded-lg p-1">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setViewMode('grid')}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setViewMode('list')}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+              </div>
+
+              <Button 
+                onClick={handleAddAsset}
+                disabled={loading}
+                className="gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Asset
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -209,15 +266,28 @@ const Assets = () => {
           </div>
         </div>
 
-        {/* Assets Grid */}
+        {/* Assets View */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className={viewMode === 'grid' 
+            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+            : "space-y-2"
+          }>
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-card rounded-xl p-4 shadow-soft animate-pulse">
-                <div className="aspect-square bg-muted rounded-lg mb-4" />
-                <div className="h-5 bg-muted rounded mb-2 w-3/4" />
-                <div className="h-4 bg-muted rounded w-1/2" />
-              </div>
+              viewMode === 'grid' ? (
+                <div key={i} className="bg-card rounded-xl p-4 shadow-soft animate-pulse">
+                  <div className="aspect-square bg-muted rounded-lg mb-4" />
+                  <div className="h-5 bg-muted rounded mb-2 w-3/4" />
+                  <div className="h-4 bg-muted rounded w-1/2" />
+                </div>
+              ) : (
+                <div key={i} className="bg-card rounded-xl p-4 shadow-soft animate-pulse flex gap-4">
+                  <div className="w-16 h-16 bg-muted rounded-lg" />
+                  <div className="flex-1">
+                    <div className="h-5 bg-muted rounded mb-2 w-1/4" />
+                    <div className="h-4 bg-muted rounded w-1/3" />
+                  </div>
+                </div>
+              )
             ))}
           </div>
         ) : filteredAssets.length === 0 ? (
@@ -235,17 +305,7 @@ const Assets = () => {
             </p>
             {assets.length === 0 && (
               <Button 
-                onClick={() => {
-                  if (loading) return;
-                  if (!organizationId) {
-                    toast.error('Create an organization first', {
-                      description: 'You need an organization to add assets.'
-                    });
-                    navigate('/dashboard');
-                    return;
-                  }
-                  setCreateDialogOpen(true);
-                }}
+                onClick={handleAddAsset}
                 disabled={loading}
                 className="gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow"
               >
@@ -254,12 +314,13 @@ const Assets = () => {
               </Button>
             )}
           </div>
-        ) : (
+        ) : viewMode === 'grid' ? (
+          // Grid View
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredAssets.map((asset) => (
               <div
                 key={asset.id}
-                className="bg-card rounded-xl overflow-hidden shadow-soft hover:shadow-medium transition-all cursor-pointer group"
+                className="bg-card rounded-xl overflow-hidden shadow-soft hover:shadow-medium transition-all group"
               >
                 <div className="aspect-square bg-muted relative overflow-hidden">
                   {asset.image_url ? (
@@ -273,9 +334,39 @@ const Assets = () => {
                       <Package className="w-12 h-12 text-muted-foreground/50" />
                     </div>
                   )}
-                  <Badge className={`absolute top-3 right-3 ${getStatusColor(asset.status)}`}>
+                  <Badge className={`absolute top-3 left-3 ${getStatusColor(asset.status)}`}>
                     {asset.status.replace('_', ' ')}
                   </Badge>
+                  
+                  {/* Action Menu */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="absolute top-3 right-3 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEdit(asset)}>
+                        <Pencil className="w-4 h-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleLend(asset)}>
+                        <HandCoins className="w-4 h-4 mr-2" />
+                        {asset.status === 'lent_out' ? 'Manage Lending' : 'Lend'}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleDelete(asset)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
                 <div className="p-4">
                   <h3 className="font-display font-semibold text-foreground mb-1 truncate">
@@ -289,6 +380,88 @@ const Assets = () => {
                       ${Number(asset.current_value).toLocaleString()}
                     </p>
                   )}
+                  {asset.status === 'lent_out' && asset.lent_to && (
+                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+                      Lent to: {asset.lent_to}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          // List View
+          <div className="space-y-2">
+            {filteredAssets.map((asset) => (
+              <div
+                key={asset.id}
+                className="bg-card rounded-xl p-4 shadow-soft hover:shadow-medium transition-all flex items-center gap-4"
+              >
+                <div className="w-16 h-16 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+                  {asset.image_url ? (
+                    <img
+                      src={asset.image_url}
+                      alt={asset.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Package className="w-6 h-6 text-muted-foreground/50" />
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-display font-semibold text-foreground truncate">
+                      {asset.name}
+                    </h3>
+                    <Badge className={`${getStatusColor(asset.status)} text-xs`}>
+                      {asset.status.replace('_', ' ')}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {getCategoryName(asset.category_id)}
+                    {asset.current_value && (
+                      <span className="ml-2 text-primary font-medium">
+                        ${Number(asset.current_value).toLocaleString()}
+                      </span>
+                    )}
+                  </p>
+                  {asset.status === 'lent_out' && asset.lent_to && (
+                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                      Lent to: {asset.lent_to}
+                    </p>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleLend(asset)}
+                    title={asset.status === 'lent_out' ? 'Manage Lending' : 'Lend'}
+                  >
+                    <HandCoins className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleEdit(asset)}
+                    title="Edit"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(asset)}
+                    title="Delete"
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             ))}
@@ -296,7 +469,7 @@ const Assets = () => {
         )}
       </main>
 
-      {/* Create Asset Dialog */}
+      {/* Dialogs */}
       {organizationId && (
         <CreateAssetDialog
           open={createDialogOpen}
@@ -305,6 +478,30 @@ const Assets = () => {
           organizationId={organizationId}
           onAssetCreated={fetchData}
         />
+      )}
+
+      {selectedAsset && (
+        <>
+          <EditAssetDialog
+            open={editDialogOpen}
+            onOpenChange={setEditDialogOpen}
+            asset={selectedAsset}
+            categories={categories}
+            onAssetUpdated={fetchData}
+          />
+          <DeleteAssetDialog
+            open={deleteDialogOpen}
+            onOpenChange={setDeleteDialogOpen}
+            asset={selectedAsset}
+            onAssetDeleted={fetchData}
+          />
+          <LendAssetDialog
+            open={lendDialogOpen}
+            onOpenChange={setLendDialogOpen}
+            asset={selectedAsset}
+            onAssetUpdated={fetchData}
+          />
+        </>
       )}
     </div>
   );

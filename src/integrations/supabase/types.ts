@@ -58,13 +58,17 @@ export type Database = {
           expected_return_date: string | null
           id: string
           image_url: string | null
+          is_overdue: boolean | null
           lent_date: string | null
           lent_to: string | null
+          lent_to_address: string | null
+          lent_to_phone: string | null
           name: string
           notes: string | null
           organization_id: string
           purchase_date: string | null
           purchase_value: number | null
+          rent_amount: number | null
           serial_number: string | null
           status: Database["public"]["Enums"]["asset_status"]
           updated_at: string
@@ -77,13 +81,17 @@ export type Database = {
           expected_return_date?: string | null
           id?: string
           image_url?: string | null
+          is_overdue?: boolean | null
           lent_date?: string | null
           lent_to?: string | null
+          lent_to_address?: string | null
+          lent_to_phone?: string | null
           name: string
           notes?: string | null
           organization_id: string
           purchase_date?: string | null
           purchase_value?: number | null
+          rent_amount?: number | null
           serial_number?: string | null
           status?: Database["public"]["Enums"]["asset_status"]
           updated_at?: string
@@ -96,13 +104,17 @@ export type Database = {
           expected_return_date?: string | null
           id?: string
           image_url?: string | null
+          is_overdue?: boolean | null
           lent_date?: string | null
           lent_to?: string | null
+          lent_to_address?: string | null
+          lent_to_phone?: string | null
           name?: string
           notes?: string | null
           organization_id?: string
           purchase_date?: string | null
           purchase_value?: number | null
+          rent_amount?: number | null
           serial_number?: string | null
           status?: Database["public"]["Enums"]["asset_status"]
           updated_at?: string
