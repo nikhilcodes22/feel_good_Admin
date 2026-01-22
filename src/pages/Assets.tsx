@@ -25,22 +25,26 @@ const Assets = () => {
   const [organizationId, setOrganizationId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (user?.id) {
+      fetchData();
+    }
+  }, [user?.id]);
 
   const fetchData = async () => {
+    if (!user?.id) return;
+
+    setLoading(true);
     try {
       // Get user's organization
-      const { data: memberData } = await supabase
+      const { data: memberData, error: memberError } = await supabase
         .from('organization_members')
         .select('organization_id')
-        .eq('user_id', user?.id || '')
+        .eq('user_id', user.id)
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (memberData) {
-        setOrganizationId(memberData.organization_id);
-      }
+      if (memberError) throw memberError;
+      setOrganizationId(memberData?.organization_id ?? null);
 
       const [assetsRes, categoriesRes] = await Promise.all([
         supabase.from('assets').select('*').order('created_at', { ascending: false }),
@@ -109,7 +113,18 @@ const Assets = () => {
             </div>
 
             <Button 
-              onClick={() => setCreateDialogOpen(true)}
+              onClick={() => {
+                if (loading) return;
+                if (!organizationId) {
+                  toast.error('Create an organization first', {
+                    description: 'You need an organization to add assets.'
+                  });
+                  navigate('/dashboard');
+                  return;
+                }
+                setCreateDialogOpen(true);
+              }}
+              disabled={loading}
               className="gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -220,7 +235,18 @@ const Assets = () => {
             </p>
             {assets.length === 0 && (
               <Button 
-                onClick={() => setCreateDialogOpen(true)}
+                onClick={() => {
+                  if (loading) return;
+                  if (!organizationId) {
+                    toast.error('Create an organization first', {
+                      description: 'You need an organization to add assets.'
+                    });
+                    navigate('/dashboard');
+                    return;
+                  }
+                  setCreateDialogOpen(true);
+                }}
+                disabled={loading}
                 className="gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow"
               >
                 <Plus className="w-4 h-4 mr-2" />

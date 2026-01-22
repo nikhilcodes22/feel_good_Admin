@@ -177,6 +177,14 @@ export function CreateAssetDialog({
     }
   };
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      onOpenChange(true);
+      return;
+    }
+    handleClose();
+  };
+
   const FormContent = (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -378,7 +386,7 @@ export function CreateAssetDialog({
   // Use Drawer for mobile, Dialog for desktop
   if (isMobile) {
     return (
-      <Drawer open={open} onOpenChange={handleClose}>
+      <Drawer open={open} onOpenChange={handleOpenChange}>
         <DrawerContent className="max-h-[90vh]">
           <DrawerHeader className="text-left">
             <DrawerTitle>Create New Asset</DrawerTitle>
@@ -390,7 +398,7 @@ export function CreateAssetDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New Asset</DialogTitle>
