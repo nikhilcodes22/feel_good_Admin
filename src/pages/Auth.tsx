@@ -4,6 +4,7 @@ import { Heart, ArrowLeft, Phone, Mail, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -19,6 +20,7 @@ const Auth = () => {
   const [identifier, setIdentifier] = useState('');
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +47,11 @@ const Auth = () => {
     
     if (otp.length !== 4) {
       toast.error('Please enter the complete OTP');
+      return;
+    }
+
+    if (!termsAccepted) {
+      toast.error('Please accept the Terms & Conditions to continue');
       return;
     }
 
@@ -234,10 +241,30 @@ const Auth = () => {
                     <p>For testing, use <span className="font-mono font-bold text-foreground">0000</span></p>
                   </div>
 
+                  {/* Terms Acceptance */}
+                  <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+                    <Checkbox
+                      id="terms"
+                      checked={termsAccepted}
+                      onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+                      className="mt-0.5"
+                    />
+                    <label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
+                      I agree to the{' '}
+                      <Link to="/terms" className="text-primary hover:underline" target="_blank">
+                        Terms & Conditions
+                      </Link>
+                      {' '}and{' '}
+                      <Link to="/terms" className="text-primary hover:underline" target="_blank">
+                        Privacy Policy
+                      </Link>
+                    </label>
+                  </div>
+
                   <Button 
                     type="submit" 
                     className="w-full h-12 gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow"
-                    disabled={isLoading || otp.length !== 4}
+                    disabled={isLoading || otp.length !== 4 || !termsAccepted}
                   >
                     {isLoading ? (
                       <>
@@ -269,9 +296,9 @@ const Auth = () => {
           {/* Footer */}
           <p className="text-center text-sm text-muted-foreground mt-6">
             By continuing, you agree to our{' '}
-            <Link to="#" className="text-primary hover:underline">Terms of Service</Link>
+            <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link>
             {' '}and{' '}
-            <Link to="#" className="text-primary hover:underline">Privacy Policy</Link>
+            <Link to="/terms" className="text-primary hover:underline">Privacy Policy</Link>
           </p>
         </div>
       </main>
