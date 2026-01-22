@@ -6,6 +6,8 @@ import { Building2, Loader2, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Link } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -59,6 +61,7 @@ export function CreateOrganizationDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -86,6 +89,11 @@ export function CreateOrganizationDialog({
   const onSubmit = async (values: FormValues) => {
     if (!user) {
       toast.error('You must be logged in to create an organization');
+      return;
+    }
+
+    if (!termsAccepted) {
+      toast.error('Please accept the Terms & Conditions to continue');
       return;
     }
 
@@ -257,10 +265,27 @@ export function CreateOrganizationDialog({
           />
         </div>
 
+        {/* Terms Acceptance */}
+        <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+          <Checkbox
+            id="org-terms"
+            checked={termsAccepted}
+            onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+            className="mt-0.5"
+          />
+          <label htmlFor="org-terms" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
+            I agree to the{' '}
+            <Link to="/terms?type=organization" className="text-primary hover:underline" target="_blank">
+              Organization Terms & Conditions
+            </Link>
+            {' '}on behalf of this organization
+          </label>
+        </div>
+
         <Button
           type="submit"
           className="w-full gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow"
-          disabled={isLoading}
+          disabled={isLoading || !termsAccepted}
         >
           {isLoading ? (
             <>
