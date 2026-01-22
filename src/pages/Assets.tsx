@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, ArrowLeft, Plus, Package, DollarSign, AlertCircle, Search, Filter } from 'lucide-react';
+import { Heart, ArrowLeft, Plus, Package, DollarSign, AlertCircle, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { CreateAssetDialog } from '@/components/assets/CreateAssetDialog';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Asset = Tables<'assets'>;
@@ -20,6 +21,8 @@ const Assets = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [organizationId, setOrganizationId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -27,6 +30,18 @@ const Assets = () => {
 
   const fetchData = async () => {
     try {
+      // Get user's organization
+      const { data: memberData } = await supabase
+        .from('organization_members')
+        .select('organization_id')
+        .eq('user_id', user?.id || '')
+        .limit(1)
+        .single();
+
+      if (memberData) {
+        setOrganizationId(memberData.organization_id);
+      }
+
       const [assetsRes, categoriesRes] = await Promise.all([
         supabase.from('assets').select('*').order('created_at', { ascending: false }),
         supabase.from('asset_categories').select('*')
@@ -93,7 +108,10 @@ const Assets = () => {
               </span>
             </div>
 
-            <Button className="gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow">
+            <Button 
+              onClick={() => setCreateDialogOpen(true)}
+              className="gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Add Asset
             </Button>
@@ -201,7 +219,10 @@ const Assets = () => {
                 : 'Try adjusting your search or filter criteria.'}
             </p>
             {assets.length === 0 && (
-              <Button className="gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow">
+              <Button 
+                onClick={() => setCreateDialogOpen(true)}
+                className="gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow"
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Add First Asset
               </Button>
@@ -248,6 +269,17 @@ const Assets = () => {
           </div>
         )}
       </main>
+
+      {/* Create Asset Dialog */}
+      {organizationId && (
+        <CreateAssetDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          categories={categories}
+          organizationId={organizationId}
+          onAssetCreated={fetchData}
+        />
+      )}
     </div>
   );
 };
