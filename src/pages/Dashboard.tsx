@@ -15,10 +15,10 @@ const Dashboard = () => {
   };
 
   const quickActions = [
-    { icon: Building2, label: 'My Organization', description: 'Manage your organization settings', href: '#' },
-    { icon: Package, label: 'Assets', description: 'View and manage assets', href: '#' },
-    { icon: Users, label: 'Team', description: 'Manage team members', href: '#' },
-    { icon: Settings, label: 'Settings', description: 'Account preferences', href: '#' },
+    { icon: Building2, label: 'My Organization', description: 'Manage your organization settings', href: '/organization' },
+    { icon: Package, label: 'Assets', description: 'View and manage assets', href: '/assets' },
+    { icon: Users, label: 'Team', description: 'Manage team members', href: '/team' },
+    { icon: Settings, label: 'Settings', description: 'Account preferences', href: '/settings' },
   ];
 
   return (
@@ -66,6 +66,7 @@ const Dashboard = () => {
           {quickActions.map((action) => (
             <button
               key={action.label}
+              onClick={() => navigate(action.href)}
               className="bg-card rounded-xl p-6 shadow-soft hover:shadow-medium transition-all text-left group"
             >
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
