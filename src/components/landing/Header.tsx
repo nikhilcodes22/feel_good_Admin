@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Heart } from "lucide-react";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navItems = [
     { label: "Features", href: "#features" },
@@ -42,10 +43,10 @@ const Header = () => {
 
           {/* CTA Buttons */}
           <div className="hidden lg:flex items-center gap-3">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>
               Sign In
             </Button>
-            <Button size="sm" className="gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow">
+            <Button size="sm" className="gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow" onClick={() => navigate('/auth')}>
               Get Started
             </Button>
           </div>
@@ -74,10 +75,10 @@ const Header = () => {
                 </a>
               ))}
               <div className="flex flex-col gap-2 mt-4 px-4">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => { setIsMenuOpen(false); navigate('/auth'); }}>
                   Sign In
                 </Button>
-                <Button size="sm" className="gradient-primary border-0">
+                <Button size="sm" className="gradient-primary border-0" onClick={() => { setIsMenuOpen(false); navigate('/auth'); }}>
                   Get Started
                 </Button>
               </div>
