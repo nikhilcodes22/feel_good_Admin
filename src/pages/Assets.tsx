@@ -20,6 +20,7 @@ import { CreateAssetDialog } from '@/components/assets/CreateAssetDialog';
 import { EditAssetDialog } from '@/components/assets/EditAssetDialog';
 import { DeleteAssetDialog } from '@/components/assets/DeleteAssetDialog';
 import { LendAssetDialog } from '@/components/assets/LendAssetDialog';
+import { ReturnAssetDialog } from '@/components/assets/ReturnAssetDialog';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Asset = Tables<'assets'>;
@@ -177,6 +178,13 @@ const Assets = () => {
                   <List className="w-4 h-4" />
                 </Button>
               </div>
+
+              {organizationId && (
+                <ReturnAssetDialog
+                  organizationId={organizationId}
+                  onReturned={fetchData}
+                />
+              )}
 
               <Button 
                 onClick={handleAddAsset}
