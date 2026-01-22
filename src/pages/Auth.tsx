@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Heart, ArrowLeft, Phone, Mail, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Link } from 'react-router-dom';
 
 type AuthMethod = 'phone' | 'email';
 type AuthStep = 'identifier' | 'otp';
@@ -51,66 +50,46 @@ const Auth = () => {
 
     setIsLoading(true);
 
-    // Validate with default OTP
-    if (otp !== DEFAULT_OTP) {
-      toast.error('Invalid OTP', {
-        description: 'Please use 0000 as the default OTP'
-      });
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      // Create deterministic credentials based on phone/email
-      // This allows the same user to login again with the same OTP
-      const email = method === 'email' ? identifier : `${identifier.replace(/\D/g, '')}@phone.local`;
-      const password = `feelgood_${email}_${DEFAULT_OTP}`;
-
-      // Try to sign in first
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      // Call edge function to verify OTP and create/update user
+      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-otp', {
+        body: { identifier, method, otp }
       });
 
-      if (signInData?.user) {
-        // Existing user signed in successfully
-        toast.success('Welcome back!', {
-          description: 'You have been signed in successfully'
-        });
-        navigate('/dashboard');
-        return;
+      if (verifyError) {
+        throw verifyError;
       }
 
-      // If sign in failed because user doesn't exist, try to sign up
-      if (signInError?.message?.includes('Invalid login credentials')) {
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: window.location.origin,
-            data: {
-              phone: method === 'phone' ? identifier : null,
-              email: method === 'email' ? identifier : null,
-            }
-          }
-        });
-
-        if (signUpError) {
-          throw signUpError;
+      if (verifyData?.error) {
+        if (verifyData.code === 'invalid_otp') {
+          toast.error('Invalid OTP', {
+            description: 'Please use 0000 as the default OTP'
+          });
+          setIsLoading(false);
+          return;
         }
-
-        toast.success('Welcome!', {
-          description: 'Your account has been created successfully'
-        });
-        navigate('/dashboard');
-        return;
+        throw new Error(verifyData.error);
       }
 
-      // Other sign in errors
+      // Now sign in with the credentials
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: verifyData.email,
+        password: verifyData.password,
+      });
+
       if (signInError) {
         throw signInError;
       }
+
+      toast.success(verifyData.isNewUser ? 'Welcome!' : 'Welcome back!', {
+        description: verifyData.isNewUser 
+          ? 'Your account has been created successfully' 
+          : 'You have been signed in successfully'
+      });
+      
+      navigate('/dashboard');
     } catch (error: any) {
+      console.error('Auth error:', error);
       toast.error('Authentication failed', {
         description: error.message
       });
