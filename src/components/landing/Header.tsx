@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Heart } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import feelgoodLogo from "@/assets/feelgood-logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,9 +21,11 @@ const Header = () => {
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow group-hover:scale-105 transition-transform">
-              <Heart className="w-5 h-5 text-primary-foreground fill-current" />
-            </div>
+            <img 
+              src={feelgoodLogo} 
+              alt="FeelGood Logo" 
+              className="w-10 h-10 group-hover:scale-105 transition-transform"
+            />
             <span className="font-display font-bold text-xl text-foreground">
               FeelGood
             </span>
