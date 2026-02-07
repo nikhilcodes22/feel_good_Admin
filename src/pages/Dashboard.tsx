@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Heart, LogOut, Building2, Package, Users, Settings, Loader2 } from 'lucide-react';
+import { LogOut, Building2, Package, Users, Settings, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { CreateOrganizationDialog } from '@/components/organization/CreateOrganizationDialog';
+import feelgoodLogo from '@/assets/feelgood-logo.png';
 
 interface Organization {
   id: string;
@@ -88,9 +89,11 @@ const Dashboard = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
-                <Heart className="w-5 h-5 text-primary-foreground fill-current" />
-              </div>
+              <img 
+                src={feelgoodLogo} 
+                alt="FeelGood Logo" 
+                className="w-10 h-10"
+              />
               <span className="font-display font-bold text-xl text-foreground">
                 FeelGood
               </span>

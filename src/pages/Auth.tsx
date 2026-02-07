@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Heart, ArrowLeft, Phone, Mail, Loader2 } from 'lucide-react';
+import { ArrowLeft, Phone, Mail, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import feelgoodLogo from '@/assets/feelgood-logo.png';
 
 type AuthMethod = 'phone' | 'email';
 type AuthStep = 'identifier' | 'otp';
@@ -132,9 +133,11 @@ const Auth = () => {
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
-              <Heart className="w-6 h-6 text-primary-foreground fill-current" />
-            </div>
+            <img 
+              src={feelgoodLogo} 
+              alt="FeelGood Logo" 
+              className="w-12 h-12"
+            />
             <span className="font-display font-bold text-2xl text-foreground">
               FeelGood
             </span>

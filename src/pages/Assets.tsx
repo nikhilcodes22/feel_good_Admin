@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Heart, ArrowLeft, Plus, Package, DollarSign, AlertCircle, Search,
+  ArrowLeft, Plus, Package, DollarSign, AlertCircle, Search,
   LayoutGrid, List, MoreVertical, Pencil, Trash2, HandCoins
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,7 @@ import { DeleteAssetDialog } from '@/components/assets/DeleteAssetDialog';
 import { LendAssetDialog } from '@/components/assets/LendAssetDialog';
 import { ReturnAssetDialog } from '@/components/assets/ReturnAssetDialog';
 import type { Tables } from '@/integrations/supabase/types';
+import feelgoodLogo from '@/assets/feelgood-logo.png';
 
 type Asset = Tables<'assets'>;
 type AssetCategory = Tables<'asset_categories'>;
@@ -150,9 +151,11 @@ const Assets = () => {
               <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
-                <Heart className="w-5 h-5 text-primary-foreground fill-current" />
-              </div>
+              <img 
+                src={feelgoodLogo} 
+                alt="FeelGood Logo" 
+                className="w-10 h-10"
+              />
               <span className="font-display font-bold text-xl text-foreground">
                 Assets
               </span>
