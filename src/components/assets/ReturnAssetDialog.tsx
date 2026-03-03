@@ -235,6 +235,7 @@ function ReturnAssetForm({ organizationId, onReturned }: ReturnAssetFormProps) {
                   <Checkbox
                     checked={selectedAssets.includes(asset.id)}
                     onCheckedChange={() => toggleAssetSelection(asset.id)}
+                    onClick={(e) => e.stopPropagation()}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
