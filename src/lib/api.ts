@@ -10,7 +10,6 @@ export const isApiConfigured = Boolean(API_BASE);
 const api = axios.create({
   baseURL: API_BASE || undefined,
   headers: { 'Content-Type': 'application/json' },
-  withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {
