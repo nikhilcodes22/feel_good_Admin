@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Assets from "./pages/Assets";
 import Admin from "./pages/Admin";
 import Terms from "./pages/Terms";
+import SpaceManagement from "./pages/SpaceManagement";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
