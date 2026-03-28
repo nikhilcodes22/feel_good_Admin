@@ -10,7 +10,6 @@ export const isApiConfigured = Boolean(API_BASE);
 const api = axios.create({
   baseURL: API_BASE || undefined,
   headers: { 'Content-Type': 'application/json' },
-  withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {
@@ -36,7 +35,6 @@ api.interceptors.response.use(
       try {
         const res = await axios.post(`${API_BASE}/api/auth/refresh`, {}, {
           headers: { Authorization: `Bearer ${refreshToken}` },
-          withCredentials: true,
         });
         const { accessToken: newAccess, refreshToken: newRefresh } = res.data;
         setTokens(newAccess, newRefresh);
