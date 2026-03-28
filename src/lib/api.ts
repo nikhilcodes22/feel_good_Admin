@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/authStore';
 const localHosts = ['localhost', '127.0.0.1'];
 const isLocalPreview = typeof window !== 'undefined' && localHosts.includes(window.location.hostname);
 
-export const API_BASE = import.meta.env.VITE_API_URL || (isLocalPreview ? 'http://localhost:5000' : '');
+export const API_BASE = import.meta.env.VITE_API_URL || (isLocalPreview ? 'http://localhost:5000' : 'https://api.feelgoodapp.net');
 export const isApiConfigured = Boolean(API_BASE);
 
 const api = axios.create({
