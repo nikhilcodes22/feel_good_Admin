@@ -99,7 +99,8 @@ const AdminLogin = () => {
       toast.success(`Welcome, ${u.firstName}!`);
       navigate('/admin/dashboard', { replace: true });
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Invalid OTP');
+      const msg = err.response?.data?.message || err.message || 'Network error – check your connection';
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
