@@ -43,6 +43,14 @@ const App = () => (
               } 
             />
             <Route path="/admin" element={<Admin />} />
+            <Route 
+              path="/space-management" 
+              element={
+                <ProtectedRoute>
+                  <SpaceManagement />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="/terms" element={<Terms />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
