@@ -81,8 +81,8 @@ const AdminLogin = () => {
   const handleVerify = async () => {
     if (!ensureApiConfigured()) return;
 
-    if (otp.length !== 6) {
-      toast.error('Enter 6-digit OTP');
+    if (otp.length !== 4) {
+      toast.error('Enter 4-digit OTP');
       return;
     }
     setLoading(true);
@@ -146,9 +146,9 @@ const AdminLogin = () => {
           ) : (
             <>
               <div className="flex justify-center">
-                <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+                <InputOTP maxLength={4} value={otp} onChange={setOtp}>
                   <InputOTPGroup>
-                    {[0, 1, 2, 3, 4, 5].map((i) => (
+                    {[0, 1, 2, 3].map((i) => (
                       <InputOTPSlot key={i} index={i} />
                     ))}
                   </InputOTPGroup>
@@ -156,7 +156,7 @@ const AdminLogin = () => {
               </div>
               <Button
                 onClick={handleVerify}
-                disabled={loading || otp.length !== 6}
+                disabled={loading || otp.length !== 4}
                 className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]"
               >
                 {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
