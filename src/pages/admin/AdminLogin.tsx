@@ -81,8 +81,8 @@ const AdminLogin = () => {
   const handleVerify = async () => {
     if (!ensureApiConfigured()) return;
 
-    if (otp.length !== 6) {
-      toast.error('Enter 6-digit OTP');
+    if (otp.length !== 4) {
+      toast.error('Enter 4-digit OTP');
       return;
     }
     setLoading(true);
