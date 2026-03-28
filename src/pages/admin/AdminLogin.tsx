@@ -156,7 +156,7 @@ const AdminLogin = () => {
               </div>
               <Button
                 onClick={handleVerify}
-                disabled={loading || otp.length !== 6}
+                disabled={loading || otp.length !== 4}
                 className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]"
               >
                 {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
