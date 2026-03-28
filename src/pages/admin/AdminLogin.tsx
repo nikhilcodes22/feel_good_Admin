@@ -55,7 +55,8 @@ const AdminLogin = () => {
       setResendTimer(30);
       toast.success('OTP sent successfully');
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to send OTP');
+      const msg = err.response?.data?.message || err.message || 'Network error – check your connection';
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
