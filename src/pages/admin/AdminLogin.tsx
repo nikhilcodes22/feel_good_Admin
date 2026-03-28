@@ -146,9 +146,9 @@ const AdminLogin = () => {
           ) : (
             <>
               <div className="flex justify-center">
-                <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+                <InputOTP maxLength={4} value={otp} onChange={setOtp}>
                   <InputOTPGroup>
-                    {[0, 1, 2, 3, 4, 5].map((i) => (
+                    {[0, 1, 2, 3].map((i) => (
                       <InputOTPSlot key={i} index={i} />
                     ))}
                   </InputOTPGroup>
