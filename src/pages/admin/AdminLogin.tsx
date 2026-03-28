@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
-import api from '@/lib/api';
+import api, { isApiConfigured } from '@/lib/api';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,7 +32,15 @@ const AdminLogin = () => {
     }
   }, [resendTimer]);
 
+  const ensureApiConfigured = () => {
+    if (isApiConfigured) return true;
+    toast.error('Set VITE_API_URL to your backend URL before using OTP login');
+    return false;
+  };
+
   const handleSendOtp = async () => {
+    if (!ensureApiConfigured()) return;
+
     const cleaned = phone.replace(/\D/g, '');
     if (cleaned.length < 10) {
       toast.error('Enter a valid phone number');
@@ -54,6 +62,8 @@ const AdminLogin = () => {
   };
 
   const handleResend = async () => {
+    if (!ensureApiConfigured()) return;
+
     setLoading(true);
     try {
       await api.post('/api/auth/resend-otp', { session });
@@ -67,6 +77,8 @@ const AdminLogin = () => {
   };
 
   const handleVerify = async () => {
+    if (!ensureApiConfigured()) return;
+
     if (otp.length !== 6) {
       toast.error('Enter 6-digit OTP');
       return;
