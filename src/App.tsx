@@ -13,6 +13,18 @@ import SpaceManagement from "./pages/SpaceManagement";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+// App layout & protected route for volunteer/orgrep
+import AppLayout from "./components/AppLayout";
+import AppProtectedRoute from "./components/AppProtectedRoute";
+
+// Volunteer pages
+import VolunteerMyEvents from "./pages/volunteer/VolunteerMyEvents";
+import VolunteerProfile from "./pages/volunteer/VolunteerProfile";
+
+// OrgRep pages
+import OrgRepMyEvents from "./pages/orgrep/OrgRepMyEvents";
+import OrgRepProfile from "./pages/orgrep/OrgRepProfile";
+
 // Admin pages
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -41,6 +53,20 @@ const App = () => (
             <Route path="/assets" element={<ProtectedRoute><Assets /></ProtectedRoute>} />
             <Route path="/space-management" element={<ProtectedRoute><SpaceManagement /></ProtectedRoute>} />
             <Route path="/terms" element={<Terms />} />
+
+            {/* Volunteer routes */}
+            <Route path="/volunteer" element={<AppProtectedRoute allowedRoles={['volunteer']}><AppLayout /></AppProtectedRoute>}>
+              <Route index element={<Navigate to="/volunteer/my-events" replace />} />
+              <Route path="my-events" element={<VolunteerMyEvents />} />
+              <Route path="profile" element={<VolunteerProfile />} />
+            </Route>
+
+            {/* OrgRep routes */}
+            <Route path="/orgrep" element={<AppProtectedRoute allowedRoles={['orgRep']}><AppLayout /></AppProtectedRoute>}>
+              <Route index element={<Navigate to="/orgrep/my-events" replace />} />
+              <Route path="my-events" element={<OrgRepMyEvents />} />
+              <Route path="profile" element={<OrgRepProfile />} />
+            </Route>
 
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />

@@ -1,53 +1,108 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Phone, Mail, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { Checkbox } from '@/components/ui/checkbox';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuthStore } from '@/stores/authStore';
+import api, { isApiConfigured } from '@/lib/api';
 import { toast } from 'sonner';
 import feelgoodLogo from '@/assets/feelgood-logo.png';
 
 type AuthMethod = 'phone' | 'email';
 type AuthStep = 'identifier' | 'otp';
 
-const DEFAULT_OTP = '0000';
-
 const Auth = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, user, setAuth } = useAuthStore();
   const [method, setMethod] = useState<AuthMethod>('phone');
   const [step, setStep] = useState<AuthStep>('identifier');
   const [identifier, setIdentifier] = useState('');
   const [otp, setOtp] = useState('');
+  const [session, setSession] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.role === 'volunteer') {
+        navigate('/volunteer/my-events', { replace: true });
+      } else if (user.role === 'orgRep') {
+        navigate('/orgrep/my-events', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [isAuthenticated, user, navigate]);
+
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const t = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(t);
+    }
+  }, [resendTimer]);
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!identifier.trim()) {
       toast.error(`Please enter your ${method === 'phone' ? 'phone number' : 'email'}`);
       return;
     }
 
+    if (!isApiConfigured) {
+      toast.error('Backend API not configured');
+      return;
+    }
+
     setIsLoading(true);
-    
-    // Simulate OTP sending delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast.success(`OTP sent to ${identifier}`, {
-      description: 'Use 0000 as the default OTP for testing'
-    });
-    setStep('otp');
-    setIsLoading(false);
+    try {
+      if (method === 'phone') {
+        const cleaned = identifier.replace(/\D/g, '');
+        if (cleaned.length < 10) {
+          toast.error('Enter a valid phone number');
+          setIsLoading(false);
+          return;
+        }
+        const fullPhone = cleaned.startsWith('91') ? `+${cleaned}` : `+91${cleaned}`;
+        const res = await api.post('/api/auth/send-otp', { phone: fullPhone });
+        setSession(res.data.session);
+      } else {
+        const res = await api.post('/api/auth/send-otp', { email: identifier });
+        setSession(res.data.session);
+      }
+      toast.success(`OTP sent to ${identifier}`);
+      setStep('otp');
+      setResendTimer(30);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || 'Network error';
+      toast.error(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setIsLoading(true);
+    try {
+      await api.post('/api/auth/resend-otp', { session });
+      setResendTimer(30);
+      toast.success('OTP resent');
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || 'Network error';
+      toast.error(msg);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (otp.length !== 4) {
-      toast.error('Please enter the complete OTP');
+      toast.error('Enter 4-digit OTP');
       return;
     }
 
@@ -57,50 +112,35 @@ const Auth = () => {
     }
 
     setIsLoading(true);
-
     try {
-      // Call edge function to verify OTP and create/update user
-      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-otp', {
-        body: { identifier, method, otp }
-      });
-
-      if (verifyError) {
-        throw verifyError;
+      const payload: any = { session, otp };
+      if (method === 'phone') {
+        const cleaned = identifier.replace(/\D/g, '');
+        payload.phone = cleaned.startsWith('91') ? `+${cleaned}` : `+91${cleaned}`;
+      } else {
+        payload.email = identifier;
       }
 
-      if (verifyData?.error) {
-        if (verifyData.code === 'invalid_otp') {
-          toast.error('Invalid OTP', {
-            description: 'Please use 0000 as the default OTP'
-          });
-          setIsLoading(false);
-          return;
-        }
-        throw new Error(verifyData.error);
+      const res = await api.post('/api/auth/verify-otp', payload);
+      const { user: u, accessToken, refreshToken } = res.data;
+
+      if (u.role !== 'volunteer' && u.role !== 'orgRep') {
+        toast.error('Access denied. Only volunteer and orgRep roles are allowed here.');
+        setIsLoading(false);
+        return;
       }
 
-      // Now sign in with the credentials
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: verifyData.email,
-        password: verifyData.password,
-      });
+      setAuth(u, accessToken, refreshToken);
+      toast.success(`Welcome, ${u.firstName}!`);
 
-      if (signInError) {
-        throw signInError;
+      if (u.role === 'volunteer') {
+        navigate('/volunteer/my-events', { replace: true });
+      } else if (u.role === 'orgRep') {
+        navigate('/orgrep/my-events', { replace: true });
       }
-
-      toast.success(verifyData.isNewUser ? 'Welcome!' : 'Welcome back!', {
-        description: verifyData.isNewUser 
-          ? 'Your account has been created successfully' 
-          : 'You have been signed in successfully'
-      });
-      
-      navigate('/dashboard');
-    } catch (error: any) {
-      console.error('Auth error:', error);
-      toast.error('Authentication failed', {
-        description: error.message
-      });
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || 'Authentication failed';
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -119,7 +159,7 @@ const Auth = () => {
     <div className="min-h-screen gradient-warm flex flex-col">
       {/* Header */}
       <header className="p-4">
-        <button 
+        <button
           onClick={handleBack}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
         >
@@ -133,9 +173,9 @@ const Auth = () => {
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-8">
-            <img 
-              src={feelgoodLogo} 
-              alt="FeelGood Logo" 
+            <img
+              src={feelgoodLogo}
+              alt="FeelGood Logo"
               className="w-12 h-12"
             />
             <span className="font-display font-bold text-2xl text-foreground">
@@ -188,17 +228,34 @@ const Auth = () => {
                     <label className="text-sm font-medium text-foreground mb-2 block">
                       {method === 'phone' ? 'Phone Number' : 'Email Address'}
                     </label>
-                    <Input
-                      type={method === 'phone' ? 'tel' : 'email'}
-                      placeholder={method === 'phone' ? '+1 (555) 000-0000' : 'you@example.com'}
-                      value={identifier}
-                      onChange={(e) => setIdentifier(e.target.value)}
-                      className="h-12"
-                      disabled={isLoading}
-                    />
+                    {method === 'phone' ? (
+                      <div className="flex gap-2">
+                        <div className="flex items-center px-3 bg-muted rounded-md text-sm font-medium text-muted-foreground">
+                          +91
+                        </div>
+                        <Input
+                          type="tel"
+                          placeholder="10-digit phone number"
+                          value={identifier}
+                          onChange={(e) => setIdentifier(e.target.value.replace(/\D/g, ''))}
+                          maxLength={10}
+                          className="h-12 flex-1"
+                          disabled={isLoading}
+                        />
+                      </div>
+                    ) : (
+                      <Input
+                        type="email"
+                        placeholder="you@example.com"
+                        value={identifier}
+                        onChange={(e) => setIdentifier(e.target.value)}
+                        className="h-12"
+                        disabled={isLoading}
+                      />
+                    )}
                   </div>
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="w-full h-12 gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow"
                     disabled={isLoading}
                   >
@@ -240,10 +297,6 @@ const Auth = () => {
                     </InputOTP>
                   </div>
 
-                  <div className="text-center text-sm text-muted-foreground">
-                    <p>For testing, use <span className="font-mono font-bold text-foreground">0000</span></p>
-                  </div>
-
                   {/* Terms Acceptance */}
                   <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
                     <Checkbox
@@ -264,8 +317,8 @@ const Auth = () => {
                     </label>
                   </div>
 
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="w-full h-12 gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow"
                     disabled={isLoading || otp.length !== 4 || !termsAccepted}
                   >
@@ -281,17 +334,30 @@ const Auth = () => {
                 </form>
 
                 {/* Resend */}
-                <button 
-                  onClick={() => {
-                    toast.success('OTP resent!', {
-                      description: 'Use 0000 as the default OTP'
-                    });
-                  }}
-                  className="w-full mt-4 text-sm text-muted-foreground hover:text-primary transition-colors"
-                  disabled={isLoading}
+                <div className="text-center mt-4">
+                  {resendTimer > 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      Resend OTP in {resendTimer}s
+                    </p>
+                  ) : (
+                    <button
+                      onClick={handleResend}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                      disabled={isLoading}
+                    >
+                      Didn't receive the code? <span className="font-medium">Resend</span>
+                    </button>
+                  )}
+                </div>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full mt-2"
+                  onClick={() => { setStep('identifier'); setOtp(''); }}
                 >
-                  Didn't receive the code? <span className="font-medium">Resend</span>
-                </button>
+                  ← Change {method === 'phone' ? 'phone number' : 'email'}
+                </Button>
               </>
             )}
           </div>
