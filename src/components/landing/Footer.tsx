@@ -77,17 +77,22 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-primary-foreground/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-primary-foreground/50">
-            © 2024 FeelGood. All rights reserved.
-          </p>
-          <div className="flex items-center gap-6 text-sm text-primary-foreground/50">
-            <Link to="/admin" className="hover:text-primary-foreground/70 transition-colors">
-              Admin
-            </Link>
-            <a href="#" className="hover:text-primary-foreground/70 transition-colors">Sitemap</a>
-            <a href="#" className="hover:text-primary-foreground/70 transition-colors">Accessibility</a>
+        <div className="pt-8 border-t border-primary-foreground/10 flex flex-col items-center gap-4">
+          <div className="flex flex-col md:flex-row items-center justify-between w-full gap-4">
+            <p className="text-sm text-primary-foreground/50">
+              © 2024 FeelGood. All rights reserved.
+            </p>
+            <div className="flex items-center gap-6 text-sm text-primary-foreground/50">
+              <Link to="/admin" className="hover:text-primary-foreground/70 transition-colors">
+                Admin
+              </Link>
+              <a href="#" className="hover:text-primary-foreground/70 transition-colors">Sitemap</a>
+              <a href="#" className="hover:text-primary-foreground/70 transition-colors">Accessibility</a>
+            </div>
           </div>
+          <p className="text-xs text-primary-foreground/40">
+            Powered by <span className="font-semibold">FeelGood Labs Private Limited</span>
+          </p>
         </div>
       </div>
     </footer>
