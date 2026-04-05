@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import {
   ArrowLeft, Building2, Phone, Mail, MapPin, Globe, FileText, Loader2, Clock,
   CheckCircle2, XCircle, AlertCircle, Info,
@@ -90,6 +92,9 @@ const AdminOrgDetail = () => {
   const [loading, setLoading] = useState(true);
   const [activityLog] = useState<ActivityLog[]>(mockActivityLog);
   const [documents] = useState<OrgDocument[]>(mockDocuments);
+  const [actionDialog, setActionDialog] = useState<'approved' | 'rejected' | 'info_requested' | null>(null);
+  const [actionComment, setActionComment] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
 
   // Determine if we came from registrations or organizations
   const isRegistration = location.pathname.includes('org-registrations');
@@ -107,6 +112,39 @@ const AdminOrgDetail = () => {
       .finally(() => setLoading(false));
   }, [apiBase]);
 
+  const handleAction = async () => {
+    if (!actionDialog || !id) return;
+    if ((actionDialog === 'rejected' || actionDialog === 'info_requested') && !actionComment.trim()) {
+      toast.error('Please provide a comment');
+      return;
+    }
+    setActionLoading(true);
+    try {
+      const endpoint = isRegistration
+        ? `/api/admin/org-registrations/${id}/action`
+        : `/api/admin/organizations/${id}/action`;
+      await api.post(endpoint, { action: actionDialog, comment: actionComment });
+      toast.success(
+        actionDialog === 'approved' ? 'Organization approved' :
+        actionDialog === 'rejected' ? 'Organization rejected' :
+        'More info requested'
+      );
+      setOrg((prev) => prev ? { ...prev, status: actionDialog === 'info_requested' ? 'moreInfoNeeded' : actionDialog } : prev);
+      setActionDialog(null);
+      setActionComment('');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Action failed');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const actionLabels: Record<string, { label: string; variant: 'default' | 'destructive' | 'outline' }> = {
+    approved: { label: 'Approve', variant: 'default' },
+    rejected: { label: 'Reject', variant: 'destructive' },
+    info_requested: { label: 'Request More Info', variant: 'outline' },
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -123,7 +161,7 @@ const AdminOrgDetail = () => {
 
   return (
     <div className="space-y-6">
-      {/* Back + Title */}
+      {/* Back + Title + Actions */}
       <div>
         <Button variant="ghost" size="sm" className="mb-2" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-4 h-4 mr-1" /> Back
@@ -142,11 +180,26 @@ const AdminOrgDetail = () => {
               <p className="text-sm text-muted-foreground">{org.orgType}</p>
             </div>
           </div>
-          {org.status && (
-            <Badge className={`${statusColor[org.status] || ''}`}>
-              {org.status === 'moreInfoNeeded' ? 'More Info Needed' : org.status}
-            </Badge>
-          )}
+          <div className="flex items-center gap-2 flex-wrap">
+            {org.status && (
+              <Badge className={`${statusColor[org.status] || ''}`}>
+                {org.status === 'moreInfoNeeded' ? 'More Info Needed' : org.status}
+              </Badge>
+            )}
+            {org.status !== 'approved' && (
+              <Button size="sm" onClick={() => setActionDialog('approved')}>
+                <CheckCircle2 className="w-4 h-4 mr-1" /> Approve
+              </Button>
+            )}
+            <Button size="sm" variant="outline" onClick={() => setActionDialog('info_requested')}>
+              <AlertCircle className="w-4 h-4 mr-1" /> Request Info
+            </Button>
+            {org.status !== 'rejected' && (
+              <Button size="sm" variant="destructive" onClick={() => setActionDialog('rejected')}>
+                <XCircle className="w-4 h-4 mr-1" /> Reject
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -319,6 +372,45 @@ const AdminOrgDetail = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Action Confirmation Dialog */}
+      <Dialog open={!!actionDialog} onOpenChange={(open) => { if (!open) { setActionDialog(null); setActionComment(''); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {actionDialog === 'approved' ? 'Approve Organization' :
+               actionDialog === 'rejected' ? 'Reject Organization' :
+               'Request More Information'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {actionDialog === 'approved'
+                ? `Are you sure you want to approve "${org.orgName}"?`
+                : actionDialog === 'rejected'
+                ? `Are you sure you want to reject "${org.orgName}"? Please provide a reason.`
+                : `Request additional information from "${org.orgName}". Please specify what is needed.`}
+            </p>
+            <Textarea
+              placeholder={actionDialog === 'approved' ? 'Optional comment...' : 'Enter reason / details (required)...'}
+              value={actionComment}
+              onChange={(e) => setActionComment(e.target.value)}
+              rows={3}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setActionDialog(null); setActionComment(''); }}>Cancel</Button>
+            <Button
+              variant={actionDialog === 'rejected' ? 'destructive' : 'default'}
+              onClick={handleAction}
+              disabled={actionLoading || ((actionDialog === 'rejected' || actionDialog === 'info_requested') && !actionComment.trim())}
+            >
+              {actionLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {actionLabels[actionDialog || 'approved']?.label || 'Confirm'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
