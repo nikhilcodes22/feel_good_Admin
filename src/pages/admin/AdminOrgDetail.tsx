@@ -92,6 +92,9 @@ const AdminOrgDetail = () => {
   const [loading, setLoading] = useState(true);
   const [activityLog] = useState<ActivityLog[]>(mockActivityLog);
   const [documents] = useState<OrgDocument[]>(mockDocuments);
+  const [actionDialog, setActionDialog] = useState<'approved' | 'rejected' | 'info_requested' | null>(null);
+  const [actionComment, setActionComment] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
 
   // Determine if we came from registrations or organizations
   const isRegistration = location.pathname.includes('org-registrations');
