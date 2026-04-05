@@ -94,7 +94,7 @@ const OrgRepVolunteers = () => {
       <Card className="border-dashed">
         <CardContent className="py-4">
           <p className="text-sm text-muted-foreground text-center">
-            📌 <strong>Backend endpoint needed:</strong> <code>GET /api/orgrep/core-volunteers</code> — Returns core volunteers for the org.
+            📌 <strong>Backend endpoint needed:</strong> <code>GET /api/core-volunteers/organization/:organizationId</code> — Returns core volunteers for the org.
           </p>
         </CardContent>
       </Card>
