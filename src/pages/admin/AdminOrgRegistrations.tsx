@@ -153,7 +153,6 @@ const AdminOrgRegistrations = () => {
                 <TableHead>Applied</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
-              </TableRow>
             </TableHeader>
             <TableBody>
               {registrations.map((r) => (
@@ -168,7 +167,6 @@ const AdminOrgRegistrations = () => {
                       {r.status === 'moreInfoNeeded' ? 'More Info' : r.status}
                     </span>
                   </TableCell>
-                </TableRow>
                 </TableRow>
               ))}
             </TableBody>
