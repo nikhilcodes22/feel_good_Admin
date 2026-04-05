@@ -52,7 +52,7 @@ const OrgRepProfile = () => {
   const handleOrgSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // TODO: Call PUT /api/orgrep/organization
+    // TODO: Call PUT /api/organizations/by-phone/:phone
     await new Promise((r) => setTimeout(r, 1000));
     toast.success('Organization profile updated (mock)');
     setIsLoading(false);
@@ -218,8 +218,8 @@ const OrgRepProfile = () => {
             📌 <strong>Backend endpoints needed:</strong><br />
             <code>GET /api/user/profile</code> — Fetch user profile<br />
             <code>PUT /api/user/profile</code> — Update user profile<br />
-            <code>GET /api/orgrep/organization</code> — Fetch org details<br />
-            <code>PUT /api/orgrep/organization</code> — Update org details
+            <code>GET /api/organizations/by-phone/:phone</code> — Fetch org details<br />
+            <code>PUT /api/organizations/by-phone/:phone</code> — Update org details
           </p>
         </CardContent>
       </Card>
