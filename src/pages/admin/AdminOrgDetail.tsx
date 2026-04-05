@@ -372,6 +372,45 @@ const AdminOrgDetail = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Action Confirmation Dialog */}
+      <Dialog open={!!actionDialog} onOpenChange={(open) => { if (!open) { setActionDialog(null); setActionComment(''); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {actionDialog === 'approved' ? 'Approve Organization' :
+               actionDialog === 'rejected' ? 'Reject Organization' :
+               'Request More Information'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {actionDialog === 'approved'
+                ? `Are you sure you want to approve "${org.orgName}"?`
+                : actionDialog === 'rejected'
+                ? `Are you sure you want to reject "${org.orgName}"? Please provide a reason.`
+                : `Request additional information from "${org.orgName}". Please specify what is needed.`}
+            </p>
+            <Textarea
+              placeholder={actionDialog === 'approved' ? 'Optional comment...' : 'Enter reason / details (required)...'}
+              value={actionComment}
+              onChange={(e) => setActionComment(e.target.value)}
+              rows={3}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setActionDialog(null); setActionComment(''); }}>Cancel</Button>
+            <Button
+              variant={actionDialog === 'rejected' ? 'destructive' : 'default'}
+              onClick={handleAction}
+              disabled={actionLoading || ((actionDialog === 'rejected' || actionDialog === 'info_requested') && !actionComment.trim())}
+            >
+              {actionLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {actionLabels[actionDialog || 'approved']?.label || 'Confirm'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
