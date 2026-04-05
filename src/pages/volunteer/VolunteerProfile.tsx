@@ -26,7 +26,7 @@ const VolunteerProfile = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // TODO: Call API endpoint PUT /api/user/profile
+    // TODO: Call API endpoint PUT /api/users/by-phone/:phone
     await new Promise((r) => setTimeout(r, 1000));
     toast.success('Profile updated (mock)');
     setIsLoading(false);
@@ -110,8 +110,8 @@ const VolunteerProfile = () => {
         <CardContent className="py-4">
           <p className="text-sm text-muted-foreground text-center">
             📌 <strong>Backend endpoints needed:</strong><br />
-            <code>GET /api/user/profile</code> — Fetch user profile<br />
-            <code>PUT /api/user/profile</code> — Update user profile
+            <code>GET /api/users/by-phone/:phone</code> — Fetch user profile<br />
+            <code>PUT /api/users/by-phone/:phone</code> — Update user profile
           </p>
         </CardContent>
       </Card>
