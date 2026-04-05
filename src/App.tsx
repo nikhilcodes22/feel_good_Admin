@@ -26,6 +26,7 @@ import OrgRepDashboard from "./pages/orgrep/OrgRepDashboard";
 import OrgRepMyEvents from "./pages/orgrep/OrgRepMyEvents";
 import OrgRepVolunteers from "./pages/orgrep/OrgRepVolunteers";
 import OrgRepProfile from "./pages/orgrep/OrgRepProfile";
+import OrgRepEventDetail from "./pages/orgrep/OrgRepEventDetail";
 
 // Admin pages
 import AdminLogin from "./pages/admin/AdminLogin";
@@ -36,6 +37,7 @@ import AdminVolunteers from "./pages/admin/AdminVolunteers";
 import AdminOrgReps from "./pages/admin/AdminOrgReps";
 import AdminEvents from "./pages/admin/AdminEvents";
 import AdminOrganizations from "./pages/admin/AdminOrganizations";
+import AdminOrgDetail from "./pages/admin/AdminOrgDetail";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
@@ -68,6 +70,7 @@ const App = () => (
               <Route index element={<Navigate to="/orgrep/dashboard" replace />} />
               <Route path="dashboard" element={<OrgRepDashboard />} />
               <Route path="events" element={<OrgRepMyEvents />} />
+              <Route path="events/:eventId" element={<OrgRepEventDetail />} />
               <Route path="volunteers" element={<OrgRepVolunteers />} />
               <Route path="profile" element={<OrgRepProfile />} />
             </Route>
@@ -83,6 +86,8 @@ const App = () => (
               <Route path="org-reps" element={<AdminOrgReps />} />
               <Route path="events" element={<AdminEvents />} />
               <Route path="organizations" element={<AdminOrganizations />} />
+              <Route path="organizations/:id" element={<AdminOrgDetail />} />
+              <Route path="org-registrations/:id" element={<AdminOrgDetail />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

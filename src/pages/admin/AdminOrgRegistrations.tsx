@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
 import { toast } from 'sonner';
-import { Loader2, Eye } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -41,6 +42,7 @@ const statusColor: Record<string, string> = {
 };
 
 const AdminOrgRegistrations = () => {
+  const navigate = useNavigate();
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('pending');
@@ -150,12 +152,11 @@ const AdminOrgRegistrations = () => {
                 <TableHead>City</TableHead>
                 <TableHead>Applied</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="w-10"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {registrations.map((r) => (
-                <TableRow key={r._id} className="cursor-pointer hover:bg-muted/50" onClick={() => setSelected(r)}>
+                <TableRow key={r._id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/admin/org-registrations/${r._id}`)}>
                   <TableCell className="font-medium">{r.applicantName}</TableCell>
                   <TableCell>{r.orgName}</TableCell>
                   <TableCell>{r.orgType}</TableCell>
@@ -165,9 +166,6 @@ const AdminOrgRegistrations = () => {
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor[r.status] || ''}`}>
                       {r.status === 'moreInfoNeeded' ? 'More Info' : r.status}
                     </span>
-                  </TableCell>
-                  <TableCell>
-                    <Eye className="h-4 w-4 text-muted-foreground" />
                   </TableCell>
                 </TableRow>
               ))}

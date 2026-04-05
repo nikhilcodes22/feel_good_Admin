@@ -10,7 +10,7 @@ import {
   MapPin,
   Clock,
   Users,
-  Plus,
+  
   Building2,
   User,
   Settings,
@@ -109,10 +109,6 @@ const OrgRepDashboard = () => {
             <Settings className="w-4 h-4 mr-2" />
             Settings
           </Button>
-          <Button className="gradient-primary border-0" size="sm" onClick={() => navigate('/orgrep/events')}>
-            <Plus className="w-4 h-4 mr-2" />
-            Create Event
-          </Button>
         </div>
       </div>
 
@@ -175,7 +171,8 @@ const OrgRepDashboard = () => {
               {displayedEvents.map((event) => (
                 <div
                   key={event._id}
-                  className="flex items-start justify-between p-3 rounded-lg border bg-card hover:shadow-sm transition-shadow"
+                  className="flex items-start justify-between p-3 rounded-lg border bg-card hover:shadow-sm transition-shadow cursor-pointer"
+                  onClick={() => navigate(`/orgrep/events/${event._id}`)}
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">

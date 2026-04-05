@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -45,6 +46,7 @@ const statusColors: Record<string, string> = {
 };
 
 const OrgRepMyEvents = () => {
+  const navigate = useNavigate();
   const [events] = useState(mockEvents);
 
   return (
@@ -71,7 +73,7 @@ const OrgRepMyEvents = () => {
       ) : (
         <div className="grid gap-4">
           {events.map((event) => (
-            <Card key={event._id} className="hover:shadow-md transition-shadow">
+            <Card key={event._id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/orgrep/events/${event._id}`)}>
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
                   <CardTitle className="text-lg">{event.title}</CardTitle>
