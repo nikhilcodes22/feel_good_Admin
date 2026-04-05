@@ -113,38 +113,37 @@ const AdminOrgDetail = () => {
   }, [apiBase]);
 
   const handleAction = async () => {
-    if (!actionDialog || !id) {
-      console.error('handleAction: missing actionDialog or id', { actionDialog, id });
-      return;
-    }
-    if ((actionDialog === 'rejected' || actionDialog === 'info_requested') && !actionComment.trim()) {
+    if (!actionDialog || !id) return;
+
+    const trimmedComment = actionComment.trim();
+    if ((actionDialog === 'rejected' || actionDialog === 'info_requested') && !trimmedComment) {
       toast.error('Please provide a comment');
       return;
     }
+
+    const baseEndpoint = isRegistration
+      ? `/api/admin/org-registrations/${id}`
+      : `/api/admin/organizations/${id}`;
+
+    const requestConfig = actionDialog === 'approved'
+      ? { url: `${baseEndpoint}/approve`, body: null as null | Record<string, string>, success: 'Organization approved' }
+      : actionDialog === 'rejected'
+        ? { url: `${baseEndpoint}/reject`, body: { reason: trimmedComment }, success: 'Organization rejected' }
+        : { url: `${baseEndpoint}/more-info`, body: { note: trimmedComment }, success: 'More info requested' };
+
     setActionLoading(true);
     try {
-      // Map internal action names to what backend expects
-      const actionMap: Record<string, string> = {
-        approved: 'approved',
-        rejected: 'rejected',
-        info_requested: 'moreInfoNeeded',
-      };
-      const endpoint = isRegistration
-        ? `/api/admin/org-registrations/${id}/action`
-        : `/api/admin/organizations/${id}/action`;
-      const payload = { action: actionMap[actionDialog] || actionDialog, comment: actionComment };
-      console.log('Sending action:', endpoint, payload);
-      await api.post(endpoint, payload);
-      toast.success(
-        actionDialog === 'approved' ? 'Organization approved' :
-        actionDialog === 'rejected' ? 'Organization rejected' :
-        'More info requested'
-      );
+      if (requestConfig.body) {
+        await api.post(requestConfig.url, requestConfig.body);
+      } else {
+        await api.post(requestConfig.url);
+      }
+
+      toast.success(requestConfig.success);
       setOrg((prev) => prev ? { ...prev, status: actionDialog === 'info_requested' ? 'moreInfoNeeded' : actionDialog } : prev);
       setActionDialog(null);
       setActionComment('');
     } catch (err: any) {
-      console.error('Action failed:', err.response?.status, err.response?.data);
       toast.error(err.response?.data?.message || 'Action failed');
     } finally {
       setActionLoading(false);
