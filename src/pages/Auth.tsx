@@ -124,8 +124,8 @@ const Auth = () => {
       const res = await api.post('/api/auth/verify-otp', payload);
       const { user: u, accessToken, refreshToken } = res.data;
 
-      if (u.role !== 'volunteer' && u.role !== 'orgRep') {
-        toast.error('Access denied. Only volunteer and orgRep roles are allowed here.');
+      if (u.role !== 'volunteer' && u.role !== 'orgRep' && u.role !== 'superAdmin') {
+        toast.error('Access denied.');
         setIsLoading(false);
         return;
       }
@@ -133,7 +133,9 @@ const Auth = () => {
       setAuth(u, accessToken, refreshToken);
       toast.success(`Welcome, ${u.firstName}!`);
 
-      if (u.role === 'volunteer') {
+      if (u.role === 'superAdmin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (u.role === 'volunteer') {
         navigate('/volunteer/my-events', { replace: true });
       } else if (u.role === 'orgRep') {
         navigate('/orgrep/my-events', { replace: true });
