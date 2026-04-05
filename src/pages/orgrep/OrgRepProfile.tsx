@@ -218,8 +218,8 @@ const OrgRepProfile = () => {
             📌 <strong>Backend endpoints needed:</strong><br />
             <code>GET /api/user/profile</code> — Fetch user profile<br />
             <code>PUT /api/user/profile</code> — Update user profile<br />
-            <code>GET /api/orgrep/organization</code> — Fetch org details<br />
-            <code>PUT /api/orgrep/organization</code> — Update org details
+            <code>GET /api/organizations/by-phone/:phone</code> — Fetch org details<br />
+            <code>PUT /api/organizations/by-phone/:phone</code> — Update org details
           </p>
         </CardContent>
       </Card>
