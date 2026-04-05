@@ -52,7 +52,7 @@ const OrgRepProfile = () => {
   const handleOrgSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // TODO: Call PUT /api/orgrep/organization
+    // TODO: Call PUT /api/organizations/by-phone/:phone
     await new Promise((r) => setTimeout(r, 1000));
     toast.success('Organization profile updated (mock)');
     setIsLoading(false);
