@@ -1,7 +1,7 @@
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, User, LogOut, Building2 } from 'lucide-react';
+import { CalendarDays, User, LogOut, Building2, LayoutDashboard, Users } from 'lucide-react';
 import feelgoodLogo from '@/assets/feelgood-logo.png';
 
 const AppLayout = () => {
@@ -9,17 +9,25 @@ const AppLayout = () => {
   const location = useLocation();
   const { user, logout } = useAuthStore();
   const role = user?.role;
-  const basePath = role === 'orgRep' ? '/orgrep' : '/volunteer';
+  const basePath = (role === 'orgRep' || role === 'superAdmin') ? '/orgrep' : '/volunteer';
+  const isOrgRep = role === 'orgRep' || role === 'superAdmin';
 
   const handleLogout = () => {
     logout();
     navigate('/auth', { replace: true });
   };
 
-  const navItems = [
-    { label: 'My Events', path: `${basePath}/my-events`, icon: CalendarDays },
-    { label: 'Profile', path: `${basePath}/profile`, icon: role === 'orgRep' ? Building2 : User },
-  ];
+  const navItems = isOrgRep
+    ? [
+        { label: 'Dashboard', path: `${basePath}/dashboard`, icon: LayoutDashboard },
+        { label: 'Events', path: `${basePath}/events`, icon: CalendarDays },
+        { label: 'Volunteers', path: `${basePath}/volunteers`, icon: Users },
+        { label: 'Profile', path: `${basePath}/profile`, icon: Building2 },
+      ]
+    : [
+        { label: 'My Events', path: `${basePath}/my-events`, icon: CalendarDays },
+        { label: 'Profile', path: `${basePath}/profile`, icon: User },
+      ];
 
   return (
     <div className="min-h-screen bg-background">

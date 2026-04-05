@@ -30,7 +30,7 @@ const Auth = () => {
       if (user.role === 'volunteer') {
         navigate('/volunteer/my-events', { replace: true });
       } else if (user.role === 'orgRep' || user.role === 'superAdmin') {
-        navigate('/orgrep/my-events', { replace: true });
+        navigate('/orgrep/dashboard', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
       }
@@ -136,7 +136,7 @@ const Auth = () => {
       if (u.role === 'volunteer') {
         navigate('/volunteer/my-events', { replace: true });
       } else if (u.role === 'orgRep' || u.role === 'superAdmin') {
-        navigate('/orgrep/my-events', { replace: true });
+        navigate('/orgrep/dashboard', { replace: true });
       }
     } catch (err: any) {
       const msg = err.response?.data?.message || err.message || 'Authentication failed';

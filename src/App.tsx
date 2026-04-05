@@ -22,7 +22,9 @@ import VolunteerMyEvents from "./pages/volunteer/VolunteerMyEvents";
 import VolunteerProfile from "./pages/volunteer/VolunteerProfile";
 
 // OrgRep pages
+import OrgRepDashboard from "./pages/orgrep/OrgRepDashboard";
 import OrgRepMyEvents from "./pages/orgrep/OrgRepMyEvents";
+import OrgRepVolunteers from "./pages/orgrep/OrgRepVolunteers";
 import OrgRepProfile from "./pages/orgrep/OrgRepProfile";
 
 // Admin pages
@@ -63,8 +65,10 @@ const App = () => (
 
             {/* OrgRep routes */}
             <Route path="/orgrep" element={<AppProtectedRoute allowedRoles={['orgRep', 'superAdmin']}><AppLayout /></AppProtectedRoute>}>
-              <Route index element={<Navigate to="/orgrep/my-events" replace />} />
-              <Route path="my-events" element={<OrgRepMyEvents />} />
+              <Route index element={<Navigate to="/orgrep/dashboard" replace />} />
+              <Route path="dashboard" element={<OrgRepDashboard />} />
+              <Route path="events" element={<OrgRepMyEvents />} />
+              <Route path="volunteers" element={<OrgRepVolunteers />} />
               <Route path="profile" element={<OrgRepProfile />} />
             </Route>
 
