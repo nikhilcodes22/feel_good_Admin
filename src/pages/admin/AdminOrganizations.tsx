@@ -4,7 +4,6 @@ import api from '@/lib/api';
 import { toast } from 'sonner';
 import { Loader2, Trash2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
@@ -33,9 +32,8 @@ const AdminOrganizations = () => {
   const navigate = useNavigate();
   const [data, setData] = useState<Org[]>([]);
   const [loading, setLoading] = useState(true);
-  const [detailOrg, setDetailOrg] = useState<OrgDetail | null>(null);
-  const [detailLoading, setDetailLoading] = useState(false);
   const [deleteOrg, setDeleteOrg] = useState<Org | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const fetchData = () => {
