@@ -112,6 +112,39 @@ const AdminOrgDetail = () => {
       .finally(() => setLoading(false));
   }, [apiBase]);
 
+  const handleAction = async () => {
+    if (!actionDialog || !id) return;
+    if ((actionDialog === 'rejected' || actionDialog === 'info_requested') && !actionComment.trim()) {
+      toast.error('Please provide a comment');
+      return;
+    }
+    setActionLoading(true);
+    try {
+      const endpoint = isRegistration
+        ? `/api/admin/org-registrations/${id}/action`
+        : `/api/admin/organizations/${id}/action`;
+      await api.post(endpoint, { action: actionDialog, comment: actionComment });
+      toast.success(
+        actionDialog === 'approved' ? 'Organization approved' :
+        actionDialog === 'rejected' ? 'Organization rejected' :
+        'More info requested'
+      );
+      setOrg((prev) => prev ? { ...prev, status: actionDialog === 'info_requested' ? 'moreInfoNeeded' : actionDialog } : prev);
+      setActionDialog(null);
+      setActionComment('');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Action failed');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const actionLabels: Record<string, { label: string; variant: 'default' | 'destructive' | 'outline' }> = {
+    approved: { label: 'Approve', variant: 'default' },
+    rejected: { label: 'Reject', variant: 'destructive' },
+    info_requested: { label: 'Request More Info', variant: 'outline' },
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -128,7 +161,7 @@ const AdminOrgDetail = () => {
 
   return (
     <div className="space-y-6">
-      {/* Back + Title */}
+      {/* Back + Title + Actions */}
       <div>
         <Button variant="ghost" size="sm" className="mb-2" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-4 h-4 mr-1" /> Back
@@ -147,11 +180,26 @@ const AdminOrgDetail = () => {
               <p className="text-sm text-muted-foreground">{org.orgType}</p>
             </div>
           </div>
-          {org.status && (
-            <Badge className={`${statusColor[org.status] || ''}`}>
-              {org.status === 'moreInfoNeeded' ? 'More Info Needed' : org.status}
-            </Badge>
-          )}
+          <div className="flex items-center gap-2 flex-wrap">
+            {org.status && (
+              <Badge className={`${statusColor[org.status] || ''}`}>
+                {org.status === 'moreInfoNeeded' ? 'More Info Needed' : org.status}
+              </Badge>
+            )}
+            {org.status !== 'approved' && (
+              <Button size="sm" onClick={() => setActionDialog('approved')}>
+                <CheckCircle2 className="w-4 h-4 mr-1" /> Approve
+              </Button>
+            )}
+            <Button size="sm" variant="outline" onClick={() => setActionDialog('info_requested')}>
+              <AlertCircle className="w-4 h-4 mr-1" /> Request Info
+            </Button>
+            {org.status !== 'rejected' && (
+              <Button size="sm" variant="destructive" onClick={() => setActionDialog('rejected')}>
+                <XCircle className="w-4 h-4 mr-1" /> Reject
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
