@@ -27,11 +27,9 @@ const Auth = () => {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      if (user.role === 'superAdmin') {
-        navigate('/admin/dashboard', { replace: true });
-      } else if (user.role === 'volunteer') {
+      if (user.role === 'volunteer') {
         navigate('/volunteer/my-events', { replace: true });
-      } else if (user.role === 'orgRep') {
+      } else if (user.role === 'orgRep' || user.role === 'superAdmin') {
         navigate('/orgrep/my-events', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
@@ -135,11 +133,9 @@ const Auth = () => {
       setAuth(u, accessToken, refreshToken);
       toast.success(`Welcome, ${u.firstName}!`);
 
-      if (u.role === 'superAdmin') {
-        navigate('/admin/dashboard', { replace: true });
-      } else if (u.role === 'volunteer') {
+      if (u.role === 'volunteer') {
         navigate('/volunteer/my-events', { replace: true });
-      } else if (u.role === 'orgRep') {
+      } else if (u.role === 'orgRep' || u.role === 'superAdmin') {
         navigate('/orgrep/my-events', { replace: true });
       }
     } catch (err: any) {
