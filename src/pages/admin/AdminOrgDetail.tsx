@@ -113,17 +113,28 @@ const AdminOrgDetail = () => {
   }, [apiBase]);
 
   const handleAction = async () => {
-    if (!actionDialog || !id) return;
+    if (!actionDialog || !id) {
+      console.error('handleAction: missing actionDialog or id', { actionDialog, id });
+      return;
+    }
     if ((actionDialog === 'rejected' || actionDialog === 'info_requested') && !actionComment.trim()) {
       toast.error('Please provide a comment');
       return;
     }
     setActionLoading(true);
     try {
+      // Map internal action names to what backend expects
+      const actionMap: Record<string, string> = {
+        approved: 'approved',
+        rejected: 'rejected',
+        info_requested: 'moreInfoNeeded',
+      };
       const endpoint = isRegistration
         ? `/api/admin/org-registrations/${id}/action`
         : `/api/admin/organizations/${id}/action`;
-      await api.post(endpoint, { action: actionDialog, comment: actionComment });
+      const payload = { action: actionMap[actionDialog] || actionDialog, comment: actionComment };
+      console.log('Sending action:', endpoint, payload);
+      await api.post(endpoint, payload);
       toast.success(
         actionDialog === 'approved' ? 'Organization approved' :
         actionDialog === 'rejected' ? 'Organization rejected' :
@@ -133,6 +144,7 @@ const AdminOrgDetail = () => {
       setActionDialog(null);
       setActionComment('');
     } catch (err: any) {
+      console.error('Action failed:', err.response?.status, err.response?.data);
       toast.error(err.response?.data?.message || 'Action failed');
     } finally {
       setActionLoading(false);
