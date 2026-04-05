@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
 import { toast } from 'sonner';
-import { Loader2, Eye, Trash2 } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -29,6 +30,7 @@ interface OrgDetail extends Org {
 }
 
 const AdminOrganizations = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState<Org[]>([]);
   const [loading, setLoading] = useState(true);
   const [detailOrg, setDetailOrg] = useState<OrgDetail | null>(null);
@@ -100,7 +102,7 @@ const AdminOrganizations = () => {
             </TableHeader>
             <TableBody>
               {data.map((o) => (
-                <TableRow key={o._id}>
+                <TableRow key={o._id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/admin/organizations/${o._id}`)}>
                   <TableCell className="font-medium">{o.orgName}</TableCell>
                   <TableCell>{o.orgType}</TableCell>
                   <TableCell>{o.contactPerson}</TableCell>
@@ -109,14 +111,9 @@ const AdminOrganizations = () => {
                   <TableCell>{o.city}</TableCell>
                   <TableCell>{format(new Date(o.createdAt), 'dd MMM yyyy')}</TableCell>
                   <TableCell>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => handleViewDetail(o)} title="View details">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => setDeleteOrg(o)} title="Delete organization" className="text-destructive hover:text-destructive">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); setDeleteOrg(o); }} title="Delete organization" className="text-destructive hover:text-destructive">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
