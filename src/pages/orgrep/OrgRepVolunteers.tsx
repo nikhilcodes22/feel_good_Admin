@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Users, User, Search, Phone } from 'lucide-react';
 
-// Mock data – replace with GET /api/orgrep/core-volunteers
+// Mock data – replace with GET /api/core-volunteers/organization/:organizationId
 const mockVolunteers = [
   { _id: '1', name: 'Aarav Sharma', phone: '+91 98765 43210', email: 'aarav@email.com', eventsAttended: 8, status: 'active' },
   { _id: '2', name: 'Priya Patel', phone: '+91 87654 32109', email: 'priya@email.com', eventsAttended: 12, status: 'active' },
@@ -94,7 +94,7 @@ const OrgRepVolunteers = () => {
       <Card className="border-dashed">
         <CardContent className="py-4">
           <p className="text-sm text-muted-foreground text-center">
-            📌 <strong>Backend endpoint needed:</strong> <code>GET /api/orgrep/core-volunteers</code> — Returns core volunteers for the org.
+            📌 <strong>Backend endpoint needed:</strong> <code>GET /api/core-volunteers/organization/:organizationId</code> — Returns core volunteers for the org.
           </p>
         </CardContent>
       </Card>
