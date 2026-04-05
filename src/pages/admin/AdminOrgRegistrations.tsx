@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { Loader2, Eye } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -38,6 +37,7 @@ const statusColor: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
   approved: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   rejected: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+  moreInfoNeeded: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
 };
 
 const AdminOrgRegistrations = () => {
@@ -47,7 +47,9 @@ const AdminOrgRegistrations = () => {
   const [selected, setSelected] = useState<Registration | null>(null);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [approveOpen, setApproveOpen] = useState(false);
+  const [moreInfoOpen, setMoreInfoOpen] = useState(false);
   const [reason, setReason] = useState('');
+  const [moreInfoNote, setMoreInfoNote] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchData = (status?: string) => {
@@ -97,6 +99,26 @@ const AdminOrgRegistrations = () => {
     }
   };
 
+  const handleMoreInfo = async () => {
+    if (!selected || !moreInfoNote.trim()) {
+      toast.error('Please provide a note');
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await api.post(`/api/admin/org-registrations/${selected._id}/more-info`, { note: moreInfoNote });
+      toast.success('More info requested');
+      setSelected(null);
+      setMoreInfoOpen(false);
+      setMoreInfoNote('');
+      fetchData(tab);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to request more info');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   return (
@@ -109,6 +131,7 @@ const AdminOrgRegistrations = () => {
           <TabsTrigger value="pending">Pending</TabsTrigger>
           <TabsTrigger value="approved">Approved</TabsTrigger>
           <TabsTrigger value="rejected">Rejected</TabsTrigger>
+          <TabsTrigger value="moreInfoNeeded">More Info</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -140,7 +163,7 @@ const AdminOrgRegistrations = () => {
                   <TableCell>{format(new Date(r.createdAt), 'dd MMM yyyy')}</TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor[r.status] || ''}`}>
-                      {r.status}
+                      {r.status === 'moreInfoNeeded' ? 'More Info' : r.status}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -180,12 +203,19 @@ const AdminOrgRegistrations = () => {
                   <div><p className="text-muted-foreground">GSTIN</p><p className="font-medium">{selected.gstin || '—'}</p></div>
                   <div className="col-span-2"><p className="text-muted-foreground">Address</p><p className="font-medium">{selected.address1}, {selected.city} - {selected.pincode}</p></div>
                   <div className="col-span-2"><p className="text-muted-foreground">Description</p><p className="font-medium">{selected.description || '—'}</p></div>
-                  <div><p className="text-muted-foreground">Status</p><span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor[selected.status] || ''}`}>{selected.status}</span></div>
+                  <div><p className="text-muted-foreground">Status</p><span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor[selected.status] || ''}`}>{selected.status === 'moreInfoNeeded' ? 'More Info Needed' : selected.status}</span></div>
                   {selected.rejectionReason && (
                     <div className="col-span-2"><p className="text-muted-foreground">Rejection Reason</p><p className="font-medium text-destructive">{selected.rejectionReason}</p></div>
                   )}
                 </div>
                 {selected.status === 'pending' && (
+                  <div className="flex gap-3 pt-4">
+                    <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={() => setApproveOpen(true)}>Approve</Button>
+                    <Button variant="outline" className="flex-1" onClick={() => setMoreInfoOpen(true)}>Request Info</Button>
+                    <Button variant="destructive" className="flex-1" onClick={() => setRejectOpen(true)}>Reject</Button>
+                  </div>
+                )}
+                {selected.status === 'moreInfoNeeded' && (
                   <div className="flex gap-3 pt-4">
                     <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={() => setApproveOpen(true)}>Approve</Button>
                     <Button variant="destructive" className="flex-1" onClick={() => setRejectOpen(true)}>Reject</Button>
@@ -220,6 +250,20 @@ const AdminOrgRegistrations = () => {
             <Button variant="outline" onClick={() => { setRejectOpen(false); setReason(''); }}>Cancel</Button>
             <Button variant="destructive" onClick={handleReject} disabled={actionLoading || !reason.trim()}>
               {actionLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Reject
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* More Info Dialog */}
+      <Dialog open={moreInfoOpen} onOpenChange={setMoreInfoOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Request More Information</DialogTitle></DialogHeader>
+          <Textarea placeholder="Note to applicant (required)" value={moreInfoNote} onChange={(e) => setMoreInfoNote(e.target.value)} />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setMoreInfoOpen(false); setMoreInfoNote(''); }}>Cancel</Button>
+            <Button onClick={handleMoreInfo} disabled={actionLoading || !moreInfoNote.trim()}>
+              {actionLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Send Request
             </Button>
           </DialogFooter>
         </DialogContent>
