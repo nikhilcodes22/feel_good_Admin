@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import api from '@/lib/api';
+import api, { API_BASE } from '@/lib/api';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -102,8 +102,6 @@ const AdminOrgDetail = () => {
     ? `/api/admin/org-registrations/${id}`
     : `/api/admin/organizations/${id}`;
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
   useEffect(() => {
     setLoading(true);
     api.get(apiBase)
@@ -126,18 +124,14 @@ const AdminOrgDetail = () => {
       : `/api/admin/organizations/${id}`;
 
     const requestConfig = actionDialog === 'approved'
-      ? { url: `${baseEndpoint}/approve`, body: null as null | Record<string, string>, success: 'Organization approved' }
+      ? { url: `${baseEndpoint}/approve`, body: {} as Record<string, string>, success: 'Organization approved' }
       : actionDialog === 'rejected'
         ? { url: `${baseEndpoint}/reject`, body: { reason: trimmedComment }, success: 'Organization rejected' }
         : { url: `${baseEndpoint}/more-info`, body: { note: trimmedComment }, success: 'More info requested' };
 
     setActionLoading(true);
     try {
-      if (requestConfig.body) {
-        await api.post(requestConfig.url, requestConfig.body);
-      } else {
-        await api.post(requestConfig.url);
-      }
+      await api.post(requestConfig.url, requestConfig.body);
 
       toast.success(requestConfig.success);
       setOrg((prev) => prev ? { ...prev, status: actionDialog === 'info_requested' ? 'moreInfoNeeded' : actionDialog } : prev);
@@ -181,7 +175,7 @@ const AdminOrgDetail = () => {
           <div className="flex items-center gap-4">
             {org.logo && (
               <img
-                src={`${API_URL}${org.logo}`}
+                src={`${API_BASE}${org.logo}`}
                 alt="Logo"
                 className="h-14 w-14 rounded-lg object-cover border"
               />

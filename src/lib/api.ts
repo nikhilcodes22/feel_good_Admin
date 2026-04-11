@@ -8,7 +8,7 @@ const isLocalPreview = typeof window !== 'undefined' && localHosts.includes(wind
 export const API_BASE = (
   import.meta.env.VITE_API_URL ||
   import.meta.env.VITE_API_BASE_URL ||
-  (isLocalPreview ? 'http://localhost:5000' : DEFAULT_API_BASE)
+  (isLocalPreview ? '' : DEFAULT_API_BASE)
 ).replace(/\/$/, '');
 export const isApiConfigured = true;
 

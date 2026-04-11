@@ -1,73 +1,128 @@
-# Welcome to your Lovable project
+# FeelGood Connect — Super Admin UI
 
-## Project info
+React-based Super Admin dashboard for the FeelGood platform. Allows super admins to review org registrations, manage users, volunteers, org reps, events, and organizations.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+---
 
-## How can I edit this code?
+## Tech Stack
 
-There are several ways of editing your application.
+| Layer | Technology |
+|---|---|
+| Framework | React 18 + TypeScript |
+| Build | Vite 5 + SWC |
+| Routing | React Router v6 |
+| State | Zustand (persisted) |
+| UI | shadcn/ui + Tailwind CSS |
+| HTTP | Axios |
+| Backend | `https://api.feelgoodapp.net` |
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Prerequisites
 
-Changes made via Lovable will be committed automatically to this repo.
+- Node.js 18+ (use [nvm](https://github.com/nvm-sh/nvm))
+- npm 9+
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Local Setup
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+# 1. Clone the repo
+git clone <repo-url>
+cd feelgood-connect
 
-Follow these steps:
+# 2. Install dependencies
+npm install
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# 3. Create your .env file
+cp .env.example .env
+# Edit .env and fill in the required values
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 4. Start the dev server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+App runs at: **http://localhost:8080**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+The Vite dev server proxies all `/api/*` requests to `https://api.feelgoodapp.net` — no CORS issues locally.
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Environment Variables
 
-## What technologies are used for this project?
+Copy `.env.example` to `.env` and fill in values. **Never commit `.env` to git.**
 
-This project is built with:
+| Variable | Required | Description |
+|---|---|---|
+| `VITE_SUPABASE_URL` | Yes | Supabase project URL |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Yes | Supabase anon/public key |
+| `VITE_SUPABASE_PROJECT_ID` | Yes | Supabase project ID |
+| `VITE_API_URL` | No | Override API base URL (leave blank for local proxy) |
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+For **production** (S3/CloudFront), set `VITE_API_URL=https://api.feelgoodapp.net` in your CI/build environment.
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## Scripts
 
-## Can I connect a custom domain to my Lovable project?
+| Command | Description |
+|---|---|
+| `npm run dev` | Start dev server with HMR on port 8080 |
+| `npm run build` | Build for production (output: `dist/`) |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint |
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Admin Login
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+1. Open `http://localhost:8080/admin/login`
+2. Enter your registered phone number
+3. Enter the OTP received
+4. Requires `superAdmin` role — access is denied for all other roles
+
+---
+
+## AWS S3 + CloudFront Deployment
+
+```bash
+# Build
+npm run build
+
+# Upload dist/ to S3 bucket
+aws s3 sync dist/ s3://your-bucket-name --delete
+
+# Invalidate CloudFront cache
+aws cloudfront create-invalidation --distribution-id YOUR_DIST_ID --paths "/*"
+```
+
+**CloudFront must be configured with a custom error response:**
+- HTTP Error Code: `403` / `404`
+- Response Page Path: `/index.html`
+- HTTP Response Code: `200`
+
+This ensures React Router client-side routes work on direct URL access or reload.
+
+---
+
+## Project Structure
+
+```
+src/
+├── pages/
+│   ├── admin/          # Super Admin pages (Dashboard, OrgRegistrations, Users, etc.)
+│   ├── orgrep/         # Org Rep pages
+│   └── volunteer/      # Volunteer pages
+├── components/
+│   ├── admin/          # AdminLayout, AdminProtectedRoute, OrgDetailSheet
+│   └── ui/             # shadcn/ui base components
+├── stores/
+│   └── authStore.ts    # Zustand auth store (persisted to localStorage)
+├── lib/
+│   └── api.ts          # Axios instance with base URL, auth interceptors, 401 refresh
+├── contexts/
+│   └── AuthContext.tsx # Supabase session context (legacy routes)
+└── integrations/
+    └── supabase/       # Supabase client + generated types
+```

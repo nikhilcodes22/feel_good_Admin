@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '@/lib/api';
+import api, { API_BASE } from '@/lib/api';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -69,7 +69,7 @@ const AdminOrgRegistrations = () => {
     if (!selected) return;
     setActionLoading(true);
     try {
-      await api.post(`/api/admin/org-registrations/${selected._id}/approve`);
+      await api.post(`/api/admin/org-registrations/${selected._id}/approve`, {});
       toast.success('Registration approved');
       setSelected(null);
       setApproveOpen(false);
@@ -120,8 +120,6 @@ const AdminOrgRegistrations = () => {
       setActionLoading(false);
     }
   };
-
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   return (
     <div className="space-y-6">
