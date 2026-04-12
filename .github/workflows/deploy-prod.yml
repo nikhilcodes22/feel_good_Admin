@@ -17,7 +17,6 @@ jobs:
       AWS_REGION: us-east-1
       S3_BUCKET: feelgood-admin-ui-prod
       CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
-      VITE_API_BASE_URL: https://api.feelgoodapp.net
 
     steps:
       - name: Checkout code
