@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => ({
       '/api': {
         target: 'https://api.feelgoodapp.net',
         changeOrigin: true,
-        secure: true,
+        secure: false,
       },
     },
   },

@@ -36,7 +36,7 @@ api.interceptors.response.use(
       const { refreshToken, setTokens, logout } = useAuthStore.getState();
       if (!refreshToken) {
         logout();
-        window.location.href = '/admin/login';
+        window.location.href = '/auth';
         return Promise.reject(error);
       }
       try {
@@ -50,7 +50,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch {
         logout();
-        window.location.href = '/admin/login';
+        window.location.href = '/auth';
         return Promise.reject(error);
       }
     }

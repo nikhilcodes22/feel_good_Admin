@@ -72,7 +72,7 @@ const App = () => (
               </Route>
 
               {/* OrgRep routes */}
-              <Route path="/orgrep" element={<AppProtectedRoute allowedRoles={['orgRep', 'superAdmin']}><AppLayout /></AppProtectedRoute>}>
+              <Route path="/orgrep" element={<AppProtectedRoute allowedRoles={['orgRep']}><AppLayout /></AppProtectedRoute>}>
                 <Route index element={<Navigate to="/orgrep/dashboard" replace />} />
                 <Route path="dashboard" element={<OrgRepDashboard />} />
                 <Route path="events" element={<OrgRepMyEvents />} />

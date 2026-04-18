@@ -14,6 +14,11 @@ const AppProtectedRoute = ({ children, allowedRoles }: Props) => {
     return <Navigate to="/auth" replace />;
   }
 
+  // SuperAdmin users always go to admin dashboard, never to volunteer/orgRep routes
+  if (user.isSuperAdmin) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
   if (!allowedRoles.includes(user.role)) {
     return (
       <div className="min-h-screen flex items-center justify-center">

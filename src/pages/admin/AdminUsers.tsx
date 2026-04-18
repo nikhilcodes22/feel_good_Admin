@@ -123,10 +123,7 @@ const AdminUsers = () => {
             <SelectItem value="all">All Roles</SelectItem>
             <SelectItem value="volunteer">Volunteer</SelectItem>
             <SelectItem value="orgRep">Org Rep</SelectItem>
-            <SelectItem value="superAdmin">Super Admin</SelectItem>
           </SelectContent>
-        </Select>
-      </div>
 
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
@@ -212,7 +209,6 @@ const AdminUsers = () => {
             <SelectContent>
               <SelectItem value="volunteer">Volunteer</SelectItem>
               <SelectItem value="orgRep">Org Rep</SelectItem>
-              <SelectItem value="superAdmin">Super Admin</SelectItem>
             </SelectContent>
           </Select>
           <DialogFooter>

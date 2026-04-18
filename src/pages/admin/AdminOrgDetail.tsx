@@ -48,10 +48,16 @@ interface ActivityLog {
 
 interface OrgDocument {
   _id: string;
-  name: string;
-  type: string;
-  url: string;
-  uploadedAt: string;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize?: number;
+  documentType: string;
+  status: 'pending' | 'approved' | 'rejected';
+  s3Key?: string;
+  uploadedBy: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Mock activity log
@@ -60,13 +66,6 @@ const mockActivityLog: ActivityLog[] = [
   { _id: '2', action: 'info_requested', performedBy: 'admin', performedByName: 'Admin User', comment: 'Please provide Darpan ID', createdAt: '2026-03-21T14:00:00Z' },
   { _id: '3', action: 'info_submitted', performedBy: 'applicant', performedByName: 'Ramesh Patel', createdAt: '2026-03-22T09:15:00Z' },
   { _id: '4', action: 'approved', performedBy: 'admin', performedByName: 'Admin User', comment: 'All documents verified', createdAt: '2026-03-23T11:00:00Z' },
-];
-
-// Mock documents
-const mockDocuments: OrgDocument[] = [
-  { _id: '1', name: 'Registration Certificate', type: 'registration_cert', url: '#', uploadedAt: '2026-03-20T10:30:00Z' },
-  { _id: '2', name: 'Darpan ID Card', type: 'darpan_id', url: '#', uploadedAt: '2026-03-22T09:15:00Z' },
-  { _id: '3', name: 'PAN Card', type: 'pan_card', url: '#', uploadedAt: '2026-03-20T10:30:00Z' },
 ];
 
 const actionIcons: Record<string, { icon: React.ReactNode; color: string }> = {
@@ -91,7 +90,7 @@ const AdminOrgDetail = () => {
   const [org, setOrg] = useState<OrgDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [activityLog] = useState<ActivityLog[]>(mockActivityLog);
-  const [documents] = useState<OrgDocument[]>(mockDocuments);
+  const [documents, setDocuments] = useState<OrgDocument[]>([]);
   const [actionDialog, setActionDialog] = useState<'approved' | 'rejected' | 'info_requested' | null>(null);
   const [actionComment, setActionComment] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
@@ -109,6 +108,15 @@ const AdminOrgDetail = () => {
       .catch(() => toast.error('Failed to load organization details'))
       .finally(() => setLoading(false));
   }, [apiBase]);
+
+  // Fetch documents for registrations
+  useEffect(() => {
+    if (isRegistration && id) {
+      api.get(`/api/admin/org-registrations/${id}/documents`)
+        .then((res) => setDocuments(res.data.data || []))
+        .catch(() => toast.error('Failed to load documents'));
+    }
+  }, [isRegistration, id]);
 
   const handleAction = async () => {
     if (!actionDialog || !id) return;
@@ -349,14 +357,14 @@ const AdminOrgDetail = () => {
                           <FileText className="w-4 h-4 text-primary" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-foreground">{doc.name}</p>
+                          <p className="text-sm font-medium text-foreground">{doc.fileName}</p>
                           <p className="text-xs text-muted-foreground">
-                            {doc.type.replace(/_/g, ' ')} · Uploaded {format(new Date(doc.uploadedAt), 'dd MMM yyyy')}
+                            {doc.documentType.replace(/_/g, ' ')} · Uploaded {format(new Date(doc.createdAt), 'dd MMM yyyy')}
                           </p>
                         </div>
                       </div>
                       <Button variant="outline" size="sm" asChild>
-                        <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                        <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer">
                           View
                         </a>
                       </Button>
@@ -367,14 +375,6 @@ const AdminOrgDetail = () => {
             </CardContent>
           </Card>
 
-          {/* Backend note */}
-          <Card className="border-dashed mt-4">
-            <CardContent className="py-4">
-              <p className="text-sm text-muted-foreground text-center">
-                📌 <strong>Backend endpoint needed:</strong> <code>GET /api/admin/organizations/{id}/documents</code>
-              </p>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
 

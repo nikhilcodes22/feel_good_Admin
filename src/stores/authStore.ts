@@ -7,6 +7,7 @@ interface User {
   role: string;
   firstName: string;
   lastName: string;
+  isSuperAdmin?: boolean;
 }
 
 interface AuthState {

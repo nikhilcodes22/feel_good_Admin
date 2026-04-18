@@ -9,8 +9,8 @@ const AppLayout = () => {
   const location = useLocation();
   const { user, logout } = useAuthStore();
   const role = user?.role;
-  const basePath = (role === 'orgRep' || role === 'superAdmin') ? '/orgrep' : '/volunteer';
-  const isOrgRep = role === 'orgRep' || role === 'superAdmin';
+  const basePath = role === 'orgRep' ? '/orgrep' : '/volunteer';
+  const isOrgRep = role === 'orgRep';
 
   const handleLogout = () => {
     logout();
