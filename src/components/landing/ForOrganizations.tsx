@@ -21,9 +21,9 @@ const benefits = [
 
 const ForOrganizations = () => {
   return (
-    <section id="organizations" className="py-24 lg:py-32 bg-muted/30">
+    <section id="organizations" className="py-16 md:py-20 bg-muted/30">
       <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-10 lg:gap-14 items-center">
           {/* Content */}
           <div>
             <span className="inline-block px-4 py-1.5 rounded-full bg-secondary/10 text-secondary text-sm font-medium mb-4">
@@ -46,10 +46,10 @@ const ForOrganizations = () => {
               ))}
             </ul>
 
-            <Button size="lg" className="gradient-secondary border-0 shadow-soft hover:shadow-medium transition-all">
+            {/* <Button size="lg" className="gradient-secondary border-0 shadow-soft hover:shadow-medium transition-all">
               Register Your Organization
               <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            </Button> */}
           </div>
 
           {/* Visual Cards */}

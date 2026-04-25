@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Users, Building2, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 const Hero = () => {
   return (
@@ -29,7 +28,8 @@ const Hero = () => {
             discover volunteer opportunities that match your skills, location, and schedule.
           </p>
 
-          {/* CTA Buttons */}
+          {/* Pre-launch: hide CTA and public stats until app launch */}
+          {/**
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
             <Button size="lg" className="gradient-primary border-0 shadow-glow hover:shadow-medium transition-all text-base px-8 py-6 h-auto">
               Start Volunteering
@@ -40,7 +40,6 @@ const Hero = () => {
             </Button>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
             <div className="flex flex-col items-center p-6 rounded-2xl bg-card shadow-soft border border-border/50">
               <Users className="w-8 h-8 text-primary mb-3" />
@@ -58,6 +57,7 @@ const Hero = () => {
               <span className="text-sm text-muted-foreground">Volunteer Hours</span>
             </div>
           </div>
+          */}
         </div>
       </div>
     </section>

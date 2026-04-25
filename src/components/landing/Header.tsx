@@ -17,7 +17,7 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
@@ -26,7 +26,7 @@ const Header = () => {
               alt="FeelGood Logo" 
               className="w-10 h-10 group-hover:scale-105 transition-transform"
             />
-            <span className="font-display font-bold text-xl text-foreground">
+            <span className="font-display font-bold text-lg sm:text-xl text-foreground">
               FeelGood
             </span>
           </Link>
@@ -46,9 +46,9 @@ const Header = () => {
 
           {/* CTA Buttons */}
           <div className="hidden lg:flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>
+            {/* <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>
               Sign In
-            </Button>
+            </Button> */}
             <Button size="sm" className="gradient-primary border-0 shadow-soft hover:shadow-glow transition-shadow" onClick={() => navigate('/auth')}>
               Get Started
             </Button>
@@ -58,6 +58,7 @@ const Header = () => {
           <button
             className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle menu"
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -65,7 +66,7 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-border animate-fade-in">
+          <div className="lg:hidden py-4 border-t border-border animate-fade-in bg-background/95">
             <nav className="flex flex-col gap-2">
               {navItems.map((item) => (
                 <a
@@ -77,7 +78,7 @@ const Header = () => {
                   {item.label}
                 </a>
               ))}
-              <div className="flex flex-col gap-2 mt-4 px-4">
+              <div className="flex flex-col gap-2 mt-3 px-4 pb-2">
                 <Button variant="outline" size="sm" onClick={() => { setIsMenuOpen(false); navigate('/auth'); }}>
                   Sign In
                 </Button>

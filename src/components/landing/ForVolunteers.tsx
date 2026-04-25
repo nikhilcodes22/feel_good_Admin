@@ -1,18 +1,16 @@
-import { Button } from "@/components/ui/button";
 import { 
   Heart, 
   MapPin, 
   Clock, 
   Star, 
-  Trophy,
-  ArrowRight
+  Trophy
 } from "lucide-react";
 
 const ForVolunteers = () => {
   return (
-    <section id="volunteers" className="py-24 lg:py-32">
+    <section id="volunteers" className="py-16 md:py-20">
       <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-10 lg:gap-14 items-center">
           {/* Visual - Phone Mockup Style */}
           <div className="relative order-2 lg:order-1">
             <div className="relative max-w-sm mx-auto">
@@ -132,10 +130,13 @@ const ForVolunteers = () => {
               </div>
             </div>
 
+            {/* Pre-launch: hide app download CTA */}
+            {/**
             <Button size="lg" className="gradient-primary border-0 shadow-glow hover:shadow-medium transition-all">
               Download the App
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
+            */}
           </div>
         </div>
       </div>

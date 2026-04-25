@@ -33,13 +33,13 @@ const AppLayout = () => {
     <div className="min-h-screen bg-background">
       {/* Top Nav */}
       <header className="border-b bg-card shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
           <Link to={basePath} className="flex items-center gap-2">
             <img src={feelgoodLogo} alt="FeelGood" className="w-8 h-8" />
             <span className="font-display font-bold text-lg text-foreground">FeelGood</span>
           </Link>
 
-          <nav className="flex items-center gap-1">
+          <nav className="flex items-center gap-1 overflow-x-auto whitespace-nowrap scrollbar-none">
             {navItems.map((item) => {
               const isActive = location.pathname.startsWith(item.path);
               return (

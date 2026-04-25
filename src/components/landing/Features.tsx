@@ -62,10 +62,10 @@ const features = [
 
 const Features = () => {
   return (
-    <section id="features" className="py-24 lg:py-32 bg-muted/30">
+    <section id="features" className="py-16 md:py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         {/* Section Header */}
-        <div className="max-w-3xl mx-auto text-center mb-16">
+        <div className="max-w-3xl mx-auto text-center mb-12 md:mb-14">
           <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
             Features
           </span>
@@ -79,7 +79,7 @@ const Features = () => {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
           {features.map((feature, index) => (
             <div
               key={feature.title}
